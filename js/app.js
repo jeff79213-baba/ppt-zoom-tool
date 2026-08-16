@@ -15,7 +15,6 @@
   const $tbPin    = document.getElementById("tb-pin");
   const $penOpts  = document.getElementById("pen-panel");
   const $pgFile   = document.getElementById("pg-file");
-  const $docList  = document.getElementById("doc-list");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
   const ctxMark = $markLayer.getContext("2d");
@@ -374,7 +373,6 @@
     fitPage();
     await renderPdf();
     updatePageLabel();
-    updateDocList();
   }
 
   function gotoPage(n) {
@@ -402,87 +400,12 @@
     $pgFile.classList.toggle("active", !!doc);
   }
 
-  function updateDocList() {
-    $docList.innerHTML = "";
-    state.docs.forEach((doc, i) => {
-      const row = document.createElement("div");
-      row.className = "doc-item" + (i === state.current ? " active" : "");
-
-      const name = document.createElement("button");
-      name.type = "button";
-      name.className = "doc-name";
-      name.textContent = doc.fileName;
-      name.title = "切換到此檔案";
-      name.addEventListener("click", () => {
-        $docList.hidden = true;
-        switchDoc(i);
-      });
-
-      const del = document.createElement("button");
-      del.type = "button";
-      del.className = "doc-del";
-      del.title = "刪除此檔案";
-      del.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-      del.addEventListener("click", (e) => {
-        e.stopPropagation();
-        removeDoc(i);
-      });
-
-      row.appendChild(name);
-      row.appendChild(del);
-      $docList.appendChild(row);
-    });
-  }
-
-  async function removeDoc(i) {
-    if (i < 0 || i >= state.docs.length) return;
-    const wasCurrent = i === state.current;
-    state.docs.splice(i, 1);
-    $docList.hidden = true;
-
-    if (state.docs.length === 0) {
-      state.current = -1;
-      state.renderScale = 0;
-      state.tempBox = null;
-      clearMagnifiers();
-      ctxPdf.setTransform(1, 0, 0, 1, 0, 0);
-      ctxPdf.clearRect(0, 0, $pdfLayer.width, $pdfLayer.height);
-      ctxMark.setTransform(1, 0, 0, 1, 0, 0);
-      ctxMark.clearRect(0, 0, $markLayer.width, $markLayer.height);
-      $dropzone.classList.remove("hidden");
-      $pgLabel.textContent = "0 / 0";
-      $pgFile.textContent = "尚未開啟";
-      $pgFile.classList.remove("active");
-      updateDocList();
-      return;
-    }
-
-    if (wasCurrent) {
-      state.current = -1;
-      await switchDoc(Math.min(i, state.docs.length - 1));
-    } else {
-      if (state.current > i) state.current--;
-      updatePageLabel();
-      updateDocList();
-    }
-  }
-
   $btnOpen.addEventListener("click", () => $file.click());
   $file.addEventListener("change", () => {
     if ($file.files[0]) loadFile($file.files[0]);
   });
 
   document.getElementById("tb-add").addEventListener("click", () => $file.click());
-
-  // 檔名切換器：點檔名跳出清單
-  $pgFile.addEventListener("click", (e) => {
-    e.stopPropagation();
-    updateDocList();
-    $docList.hidden = !$docList.hidden;
-  });
-  document.addEventListener("click", (e) => {
-    if (!$docList.contains(e.target) && e.target !== $pgFile) $docList.hidden = true;
-  });
 
   ["dragenter", "dragover"].forEach((ev) =>
     $dropzone.addEventListener(ev, (e) => { e.preventDefault(); $dropzone.classList.add("drag"); })
