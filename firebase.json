@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "AGENTS.md",
+      "網址.txt",
+      "*.bat",
+      ".git/**"
+    ],
+    "site": "ppt-zoom-sk",
+    "cleanUrls": true
+  }
+}

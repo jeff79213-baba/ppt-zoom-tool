@@ -1,0 +1,14 @@
+--- GitHub ---
+https://github.com/jeff79213-baba/ppt-zoom-tool
+
+--- GitHub Pages ---
+https://jeff79213-baba.github.io/ppt-zoom-tool/
+
+--- Firebase Hosting ---
+https://ppt-zoom-sk.web.app
+
+--- 本機預覽 ---
+http://localhost:8000/index.html
+
+--- 本地路徑 ---
+C:\Users\TW-10\Documents\firebase雲端資料夾\簡報縮放導覽工具
