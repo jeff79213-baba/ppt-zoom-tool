@@ -541,6 +541,23 @@
     });
   });
 
+  // 手機版筆面板：一個顏色點，點開色盤、選完收起
+  const $penColorBtn = document.getElementById("pen-color");
+  const $penMain     = document.querySelector("#pen-panel .pen-main");
+  const $penColors   = document.querySelector("#pen-panel .pen-colors");
+  $penColorBtn.style.background = state.color;
+  $penColorBtn.addEventListener("click", () => {
+    $penMain.hidden = true;
+    $penColors.hidden = false;
+  });
+  document.querySelectorAll("#pen-panel .pen-colors .sw").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $penColorBtn.style.background = btn.dataset.color;
+      $penColors.hidden = true;
+      $penMain.hidden = false;
+    });
+  });
+
   // ---------- Undo / 清空 / 回整頁 ----------
   document.getElementById("tb-undo").addEventListener("click", () => {
     const doc = cur();
