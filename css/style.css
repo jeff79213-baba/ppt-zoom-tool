@@ -1,0 +1,314 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+  background: #23272e;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+#viewer {
+  position: fixed;
+  inset: 0;
+  background: #2b3037;
+  overflow: hidden;
+}
+
+#pdf-layer, #mark-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#mark-layer { pointer-events: none; }
+
+#viewer.grab { cursor: grab; }
+#viewer.grabbing { cursor: grabbing; }
+#viewer.zoom { cursor: crosshair; }
+#viewer.mag { cursor: crosshair; }
+#viewer.pen { cursor: crosshair; }
+
+/* ---------- 上傳區 ---------- */
+#dropzone {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  background: #23272e;
+  transition: opacity .3s;
+}
+#dropzone.hidden { opacity: 0; pointer-events: none; }
+
+.dz-inner {
+  text-align: center;
+  padding: 48px 64px;
+  border: 2px dashed #4a5160;
+  border-radius: 16px;
+  color: #9aa3b2;
+}
+.dz-inner p { margin: 18px 0 20px; font-size: 15px; }
+.dz-inner.drag { border-color: #4fc3f7; color: #4fc3f7; background: rgba(79,195,247,.06); }
+
+#btn-open {
+  padding: 9px 26px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #4fc3f7;
+  color: #0b1a22;
+  cursor: pointer;
+}
+#btn-open:hover { background: #6fd2fa; }
+
+/* ---------- 底部工具列 ---------- */
+#tb-wrap {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 64px;
+  z-index: 40;
+}
+
+#tb-edge {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 10px;
+  background: rgba(255,255,255,.05);
+}
+
+#toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) translateY(110%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  background: rgba(20,23,28,.92);
+  backdrop-filter: blur(6px);
+  border-radius: 14px 14px 0 0;
+  transition: transform .28s ease .9s;
+  box-shadow: 0 -2px 14px rgba(0,0,0,.4);
+}
+
+#tb-wrap:hover #toolbar,
+#tb-wrap.pinned #toolbar {
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0s;
+}
+
+.tb-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tb-pin, .toolbtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #b9c1cd;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.tb-pin:hover, .toolbtn:hover { background: rgba(255,255,255,.10); color: #fff; }
+
+.toolbtn.active {
+  background: #4fc3f7;
+  color: #0b1a22;
+}
+
+.tb-pin { color: #7f8896; }
+#tb-wrap.pinned .tb-pin { color: #4fc3f7; }
+
+#pg-label {
+  min-width: 44px;
+  text-align: center;
+  font-size: 13px;
+  color: #cdd4dd;
+}
+
+/* 檔名切換器 */
+.file-wrap { position: relative; }
+.file-btn {
+  width: auto;
+  min-width: 70px;
+  max-width: 150px;
+  padding: 0 10px;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doc-list {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 160px;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20,23,28,.96);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.5);
+  padding: 5px;
+  z-index: 50;
+}
+.doc-item {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #cdd4dd;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-item:hover { background: rgba(255,255,255,.10); }
+.doc-item.active { background: #4fc3f7; color: #0b1a22; }
+
+/* 放大鏡形狀面板 */
+#mag-panel {
+  position: absolute;
+  left: 14px;
+  bottom: 58px;
+  display: flex;
+  padding: 8px 10px;
+  background: rgba(20,23,28,.94);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.45);
+}
+#mag-panel[hidden] { display: none; }
+#mag-panel .shapes { grid-template-columns: repeat(2, 1fr); }
+
+/* 放大鏡視窗 */
+.mag-window {
+  position: fixed;
+  z-index: 80;
+  border: 2px solid rgba(255,255,255,.85);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+  background: #fff;
+  overflow: hidden;
+  cursor: move;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.mag-window.ready { opacity: 1; }
+.mag-window canvas { display: block; }
+.mag-window.mag-circle { border-radius: 50%; }
+.mag-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mag-close:hover { background: rgba(220,50,50,.9); }
+
+.tb-sep {
+  width: 1px;
+  height: 30px;
+  background: rgba(255,255,255,.14);
+  margin: 0 4px;
+}
+
+/* ---------- 筆選項面板（靠左側，浮在工具列上方） ---------- */
+#pen-panel {
+  position: absolute;
+  left: 14px;
+  bottom: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(20,23,28,.94);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.45);
+}
+@media (max-width: 900px) {
+  #pen-panel { display: none; }
+}
+
+.shapes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.shapebtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #b9c1cd;
+  cursor: pointer;
+}
+.shapebtn:hover { background: rgba(255,255,255,.10); color: #fff; }
+.shapebtn.active { background: #4fc3f7; color: #0b1a22; }
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.sw {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.25);
+  cursor: pointer;
+  padding: 0;
+}
+.sw.active { border-color: #fff; box-shadow: 0 0 0 2px #4fc3f7; }
+.sw-white { border-color: rgba(255,255,255,.6); }
+
+.width-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #7f8896;
+}
+#pen-width {
+  width: 60px;
+  accent-color: #4fc3f7;
+}
+
+/* ---------- 頁面導覽 ---------- */
+#pg-label { min-width: 44px; text-align: center; font-size: 13px; }
