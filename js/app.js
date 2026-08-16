@@ -398,21 +398,72 @@
     if (!doc) return;
     $pgLabel.textContent = `${doc.page} / ${doc.numPages}`;
     $pgFile.textContent = doc.fileName;
+    $pgFile.classList.toggle("active", !!doc);
   }
 
   function updateDocList() {
     $docList.innerHTML = "";
     state.docs.forEach((doc, i) => {
-      const item = document.createElement("button");
-      item.type = "button";
-      item.className = "doc-item" + (i === state.current ? " active" : "");
-      item.textContent = doc.fileName;
-      item.addEventListener("click", () => {
+      const row = document.createElement("div");
+      row.className = "doc-item" + (i === state.current ? " active" : "");
+
+      const name = document.createElement("button");
+      name.type = "button";
+      name.className = "doc-name";
+      name.textContent = doc.fileName;
+      name.title = "切換到此檔案";
+      name.addEventListener("click", () => {
         $docList.hidden = true;
         switchDoc(i);
       });
-      $docList.appendChild(item);
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "doc-del";
+      del.title = "刪除此檔案";
+      del.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      del.addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeDoc(i);
+      });
+
+      row.appendChild(name);
+      row.appendChild(del);
+      $docList.appendChild(row);
     });
+  }
+
+  async function removeDoc(i) {
+    if (i < 0 || i >= state.docs.length) return;
+    const wasCurrent = i === state.current;
+    state.docs.splice(i, 1);
+    $docList.hidden = true;
+
+    if (state.docs.length === 0) {
+      state.current = -1;
+      state.renderScale = 0;
+      state.tempBox = null;
+      clearMagnifiers();
+      ctxPdf.setTransform(1, 0, 0, 1, 0, 0);
+      ctxPdf.clearRect(0, 0, $pdfLayer.width, $pdfLayer.height);
+      ctxMark.setTransform(1, 0, 0, 1, 0, 0);
+      ctxMark.clearRect(0, 0, $markLayer.width, $markLayer.height);
+      $dropzone.classList.remove("hidden");
+      $pgLabel.textContent = "0 / 0";
+      $pgFile.textContent = "尚未開啟";
+      $pgFile.classList.remove("active");
+      updateDocList();
+      return;
+    }
+
+    if (wasCurrent) {
+      state.current = -1;
+      await switchDoc(Math.min(i, state.docs.length - 1));
+    } else {
+      if (state.current > i) state.current--;
+      updatePageLabel();
+      updateDocList();
+    }
   }
 
   $btnOpen.addEventListener("click", () => $file.click());

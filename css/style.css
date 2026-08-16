@@ -144,19 +144,20 @@ html, body {
 .file-wrap { position: relative; }
 .file-btn {
   width: auto;
-  min-width: 70px;
   max-width: 150px;
-  padding: 0 10px;
+  padding: 0 8px;
   font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #cdd4dd;
 }
+.file-btn.active { background: #4fc3f7; color: #0b1a22; }
 .doc-list {
   position: absolute;
   left: 0;
   bottom: calc(100% + 8px);
-  min-width: 160px;
+  min-width: 180px;
   max-height: 260px;
   overflow-y: auto;
   display: flex;
@@ -169,11 +170,20 @@ html, body {
   z-index: 50;
 }
 .doc-item {
-  display: block;
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   border-radius: 6px;
+  background: transparent;
+}
+.doc-item:hover { background: rgba(255,255,255,.10); }
+.doc-item.active { background: #4fc3f7; }
+.doc-item.active .doc-name { color: #0b1a22; }
+.doc-name {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 4px 8px 10px;
+  border: none;
   background: transparent;
   color: #cdd4dd;
   font-size: 13px;
@@ -183,8 +193,22 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.doc-item:hover { background: rgba(255,255,255,.10); }
-.doc-item.active { background: #4fc3f7; color: #0b1a22; }
+.doc-del {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #7f8896;
+  cursor: pointer;
+}
+.doc-del:hover { background: rgba(220,50,50,.25); color: #ff6b6b; }
+.doc-item.active .doc-del { color: rgba(11,26,34,.6); }
+.doc-item.active .doc-del:hover { color: #0b1a22; background: rgba(0,0,0,.18); }
 
 /* 放大鏡形狀面板 */
 #mag-panel {
