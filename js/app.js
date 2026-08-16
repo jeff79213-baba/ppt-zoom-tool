@@ -15,6 +15,7 @@
   const $tbPin    = document.getElementById("tb-pin");
   const $penOpts  = document.getElementById("pen-panel");
   const $pgFile   = document.getElementById("pg-file");
+  const $tbDelmag = document.getElementById("tb-delmag");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
   const ctxMark = $markLayer.getContext("2d");
@@ -587,25 +588,8 @@
     close.className = "mag-close";
     close.textContent = "×";
     close.addEventListener("pointerdown", (ev) => ev.stopPropagation());
-    close.addEventListener("click", () => {
-      el.remove();
-      state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
-    });
+    close.addEventListener("click", () => removeMag(el));
     el.appendChild(close);
-
-    // 長按出現的刪除鈕（視窗過大超出畫面時，角落 × 點不到也能刪除）
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "mag-del";
-    del.title = "刪除此放大鏡";
-    del.innerHTML =
-      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
-    del.addEventListener("pointerdown", (ev) => ev.stopPropagation());
-    del.addEventListener("click", () => {
-      el.remove();
-      state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
-    });
-    el.appendChild(del);
 
     // 角落縮放把手：拖曳可放大/縮小視窗
     const grip = document.createElement("button");
@@ -616,14 +600,12 @@
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/></svg>';
     el.appendChild(grip);
 
-    // 拖動 ＋ 長按偵測
+    // 拖動 ＋ 長按偵測（長按＝選取該放大鏡，工具列出現刪除鈕）
     let dragging = false, dx = 0, dy = 0;
     let pressTimer = null, pressX = 0, pressY = 0;
-    const hideDel = () => del.classList.remove("visible");
     const LONG_PRESS_MS = 600;
     el.addEventListener("pointerdown", (e) => {
       if (e.target === close || e.target === grip) return;
-      hideDel();
       dragging = true;
       dx = e.clientX - left;
       dy = e.clientY - top;
@@ -632,7 +614,7 @@
       pressX = e.clientX;
       pressY = e.clientY;
       pressTimer = setTimeout(() => {
-        del.classList.add("visible");
+        selectMag(el);
         pressTimer = null;
       }, LONG_PRESS_MS);
     });
@@ -658,9 +640,6 @@
       dragging = false;
       clearTimeout(pressTimer);
       pressTimer = null;
-    });
-    document.addEventListener("pointerdown", (e) => {
-      if (!el.contains(e.target)) hideDel();
     });
 
     let resizing = false, rStartX = 0, rStartY = 0, rw = 0, rh = 0;
@@ -699,6 +678,28 @@
 
   // 工具列釘選
   $tbPin.addEventListener("click", () => $tbWrap.classList.toggle("pinned"));
+
+  // ---------- 放大鏡視窗選取 / 刪除 ----------
+  let selectedMag = null;
+  function selectMag(el) {
+    document.querySelectorAll(".mag-window").forEach((w) => w.classList.remove("selected"));
+    el.classList.add("selected");
+    selectedMag = el;
+    $tbDelmag.hidden = false;
+    $tbWrap.classList.add("has-mag");
+  }
+  function removeMag(el) {
+    el.remove();
+    state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
+    if (selectedMag === el) {
+      selectedMag = null;
+      $tbDelmag.hidden = true;
+      $tbWrap.classList.remove("has-mag");
+    }
+  }
+  $tbDelmag.addEventListener("click", () => {
+    if (selectedMag) removeMag(selectedMag);
+  });
 
   // ---------- 快捷鍵 ----------
   window.addEventListener("keydown", (e) => {
