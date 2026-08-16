@@ -336,3 +336,51 @@ html, body {
 
 /* ---------- 頁面導覽 ---------- */
 #pg-label { min-width: 44px; text-align: center; font-size: 13px; }
+
+/* ========== 手機 / 觸控版 ========== */
+/* 觸控裝置或窄螢幕：工具列常駐顯示，不依賴 hover */
+@media (hover: none), (max-width: 860px) {
+  #tb-wrap { height: auto; }
+  #tb-edge { display: none; }
+  #tb-pin { display: none; }
+
+  #toolbar {
+    position: static;
+    width: 100%;
+    transform: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 12px 12px 0 0;
+    transition: none;
+  }
+  #tb-wrap:hover #toolbar,
+  #tb-wrap.pinned #toolbar {
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .tb-sep { display: none; }
+}
+
+/* 手機直式窄螢幕：折行排版 */
+@media (max-width: 860px) {
+  #toolbar { gap: 6px; padding: 8px 8px 10px; }
+
+  .file-btn { max-width: 110px; }
+
+  /* 筆選項佔一整排 */
+  .pen-options {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+  .swatches { grid-template-columns: repeat(4, 1fr); }
+
+  /* 放大鏡形狀面板上調，避免被多排工具列蓋住 */
+  #mag-panel {
+    position: fixed;
+    left: 8px;
+    bottom: 220px;
+  }
+
+  #doc-list { max-height: 200px; }
+}
