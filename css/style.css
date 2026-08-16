@@ -158,6 +158,7 @@ html, body {
   left: 0;
   bottom: calc(100% + 8px);
   min-width: 180px;
+  max-width: 340px;
   max-height: 260px;
   overflow-y: auto;
   display: flex;
@@ -268,7 +269,7 @@ html, body {
   margin: 0 4px;
 }
 
-/* ---------- 筆選項面板（靠左側，浮在工具列上方） ---------- */
+/* ---------- 筆選項面板（浮動，手機版使用） ---------- */
 #pen-panel {
   position: absolute;
   left: 14px;
@@ -283,7 +284,9 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,.45);
 }
-@media (max-width: 900px) {
+#pen-panel[hidden] { display: none; }
+/* 桌面版使用工具列內嵌的筆選項，浮動面板不需要 */
+@media (min-width: 861px) {
   #pen-panel { display: none; }
 }
 
@@ -329,7 +332,7 @@ html, body {
   gap: 4px;
   color: #7f8896;
 }
-#pen-width {
+.pen-width {
   width: 60px;
   accent-color: #4fc3f7;
 }
@@ -362,25 +365,39 @@ html, body {
   .tb-sep { display: none; }
 }
 
-/* 手機直式窄螢幕：折行排版 */
+/* 手機直式窄螢幕：固定兩排 + 浮動面板 */
 @media (max-width: 860px) {
   #toolbar { gap: 6px; padding: 8px 8px 10px; }
 
   .file-btn { max-width: 110px; }
 
-  /* 筆選項佔一整排 */
-  .pen-options {
-    flex-basis: 100%;
-    justify-content: center;
-  }
-  .swatches { grid-template-columns: repeat(4, 1fr); }
-
-  /* 放大鏡形狀面板上調，避免被多排工具列蓋住 */
-  #mag-panel {
-    position: fixed;
+  /* 手機版筆選項改放浮動面板，工具列維持兩排 */
+  .pen-options { display: none; }
+  #pen-panel {
+    position: absolute;
     left: 8px;
-    bottom: 220px;
+    bottom: 112px;
+    align-items: center;
+    max-width: calc(100vw - 16px);
+  }
+  #pen-panel .swatches { grid-template-columns: repeat(4, 1fr); }
+
+  /* 放大鏡形狀面板：固定在兩排工具列上方 */
+  #mag-panel {
+    position: absolute;
+    left: 8px;
+    bottom: 112px;
   }
 
   #doc-list { max-height: 200px; }
+
+  /* 檔名下拉清單：固定於視窗範圍內、工具列上方，避免長檔名凸出螢幕外 */
+  .doc-list {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 112px;
+    min-width: 0;
+    max-width: none;
+  }
 }

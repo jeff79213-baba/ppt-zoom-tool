@@ -15,7 +15,6 @@
   const $tbPin    = document.getElementById("tb-pin");
   const $penOpts  = document.getElementById("pen-panel");
   const $magOpts  = document.getElementById("mag-panel");
-  const $penWidth = document.getElementById("pen-width");
   const $pgFile   = document.getElementById("pg-file");
   const $docList  = document.getElementById("doc-list");
 
@@ -507,6 +506,7 @@
     if (tool === "mag") $viewer.classList.add("mag");
     if (tool === "pen") $viewer.classList.add("pen");
     $magOpts.hidden = tool !== "mag";
+    $penOpts.hidden = tool !== "pen";
     for (const [t, id] of Object.entries(toolBtns)) {
       document.getElementById(id).classList.toggle("active", t === tool);
     }
@@ -516,10 +516,11 @@
   }
 
   // ---------- 筆選項 ----------
-  document.querySelectorAll("#pen-panel .shapebtn").forEach((btn) => {
+  document.querySelectorAll(".shapebtn[data-shape]").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.shape = btn.dataset.shape;
-      document.querySelectorAll("#pen-panel .shapebtn").forEach((b) => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".shapebtn[data-shape]").forEach((b) =>
+        b.classList.toggle("active", b.dataset.shape === state.shape));
     });
   });
   // 放大鏡形狀
@@ -532,11 +533,18 @@
   document.querySelectorAll(".sw").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.color = btn.dataset.color;
-      document.querySelectorAll(".sw").forEach((b) => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".sw").forEach((b) =>
+        b.classList.toggle("active", b.dataset.color === state.color));
     });
   });
-  document.querySelector(".sw[data-color='#e53935']").classList.add("active");
-  $penWidth.addEventListener("input", () => { state.width = +$penWidth.value; });
+  document.querySelectorAll(".sw[data-color='#e53935']").forEach((b) => b.classList.add("active"));
+  const widthInputs = document.querySelectorAll(".pen-width");
+  widthInputs.forEach((el) => {
+    el.addEventListener("input", () => {
+      state.width = +el.value;
+      widthInputs.forEach((x) => { x.value = el.value; });
+    });
+  });
 
   // ---------- Undo / 清空 / 回整頁 ----------
   document.getElementById("tb-undo").addEventListener("click", () => {
