@@ -14,7 +14,6 @@
   const $tbWrap   = document.getElementById("tb-wrap");
   const $tbPin    = document.getElementById("tb-pin");
   const $penOpts  = document.getElementById("pen-panel");
-  const $magOpts  = document.getElementById("mag-panel");
   const $pgFile   = document.getElementById("pg-file");
   const $docList  = document.getElementById("doc-list");
 
@@ -37,7 +36,6 @@
     color: "#e53935",
     width: 4,                    // CSS px 線寬
     shape: "free",               // free | line | rect | circle
-    magShape: "box",             // box | circle（放大鏡圈選形狀）
     magnifiers: [],              // 目前的放大鏡視窗 [{el}]
     pointer: null,               // 進行中的指標操作
     tempBox: null,               // 框選中的虛線矩形（世界座標）
@@ -159,13 +157,7 @@
       ctxMark.strokeStyle = "#4fc3f7";
       ctxMark.lineWidth = 1.5 / state.scale;
       ctxMark.setLineDash([6 / state.scale, 5 / state.scale]);
-      if (state.tool === "mag" && state.magShape === "circle") {
-        ctxMark.beginPath();
-        ctxMark.ellipse(b.x + b.w / 2, b.y + b.h / 2, b.w / 2, b.h / 2, 0, 0, Math.PI * 2);
-        ctxMark.stroke();
-      } else {
-        ctxMark.strokeRect(b.x, b.y, b.w, b.h);
-      }
+      ctxMark.strokeRect(b.x, b.y, b.w, b.h);
       ctxMark.setLineDash([]);
     }
   }
@@ -323,6 +315,16 @@
     const factor = Math.exp(-e.deltaY * 0.0015);
     zoomAt(e.clientX, e.clientY, factor);
   }, { passive: false });
+
+  // 手機版縮放按鈕（沒有滾輪時用）
+  document.getElementById("tb-zoomin").addEventListener("click", () => {
+    if (!cur()) return;
+    zoomAt($viewer.clientWidth / 2, $viewer.clientHeight / 2, 1.5);
+  });
+  document.getElementById("tb-zoomout").addEventListener("click", () => {
+    if (!cur()) return;
+    zoomAt($viewer.clientWidth / 2, $viewer.clientHeight / 2, 2 / 3);
+  });
 
   function zoomAt(px, py, factor) {
     const w = $viewer.clientWidth, h = $viewer.clientHeight;
@@ -505,7 +507,6 @@
     if (tool === "zoom") $viewer.classList.add("zoom");
     if (tool === "mag") $viewer.classList.add("mag");
     if (tool === "pen") $viewer.classList.add("pen");
-    $magOpts.hidden = tool !== "mag";
     $penOpts.hidden = tool !== "pen";
     for (const [t, id] of Object.entries(toolBtns)) {
       document.getElementById(id).classList.toggle("active", t === tool);
@@ -523,13 +524,7 @@
         b.classList.toggle("active", b.dataset.shape === state.shape));
     });
   });
-  // 放大鏡形狀
-  document.querySelectorAll("#mag-panel .shapebtn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.magShape = btn.dataset.mag;
-      document.querySelectorAll("#mag-panel .shapebtn").forEach((b) => b.classList.toggle("active", b === btn));
-    });
-  });
+  // 放大鏡形狀：固定方框，不需要選擇面板
   document.querySelectorAll(".sw").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.color = btn.dataset.color;
@@ -575,7 +570,7 @@
     const winH = Math.max(80, b.h * state.scale * MAG_FACTOR);
 
     const el = document.createElement("div");
-    el.className = "mag-window" + (state.magShape === "circle" ? " mag-circle" : "");
+    el.className = "mag-window";
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(winW * dpr);
     canvas.height = Math.round(winH * dpr);
@@ -596,12 +591,6 @@
     srcImg.onload = () => {
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, winW, winH);
-      // 圓形遮罩
-      if (state.magShape === "circle") {
-        g.beginPath();
-        g.arc(winW / 2, winH / 2, winW / 2, 0, Math.PI * 2);
-        g.clip();
-      }
       // 從 pdf-layer 像素（CSS px）裁剪後放大繪製
       g.drawImage(srcImg, sx * dpr, sy * dpr, sw * dpr, sh * dpr, 0, 0, winW, winH);
       // 邊框
@@ -677,4 +666,9 @@
   // 啟動
   resizeCanvases();
   setTool("glove");
+
+  // 測試掛鉤：僅在網址帶 ?t 時啟用（正式使用不影響）
+  if (new URLSearchParams(location.search).has("t")) {
+    window.__app = { state, cur, zoomAt, setTool, resetView };
+  }
 })();

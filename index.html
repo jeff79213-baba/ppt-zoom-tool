@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>簡報縮放導覽工具</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=20260816b">
 </head>
 <body>
 
@@ -29,17 +29,6 @@
 
 <aside id="tb-wrap">
   <div id="tb-edge"></div>
-  <div id="mag-panel" hidden>
-    <div class="shapes">
-      <button class="shapebtn active" data-mag="box" title="方框">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16"/></svg>
-      </button>
-      <button class="shapebtn" data-mag="circle" title="圓框">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/></svg>
-      </button>
-    </div>
-  </div>
-
   <div id="pen-panel" hidden>
     <div class="shapes">
       <button class="shapebtn active" data-shape="free" title="隨意線">
@@ -114,6 +103,17 @@
 
     <div class="tb-sep"></div>
 
+    <div class="tb-group tb-zoomstep">
+      <button id="tb-zoomout" type="button" class="toolbtn" title="縮小">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 12h8"/></svg>
+      </button>
+      <button id="tb-zoomin" type="button" class="toolbtn" title="放大">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v8M8 12h8"/></svg>
+      </button>
+    </div>
+
+    <div class="tb-sep"></div>
+
     <div class="tb-group pen-options">
       <div class="shapes">
         <button class="shapebtn active" data-shape="free" title="隨意線">
@@ -150,7 +150,7 @@
 
     <div class="tb-group">
       <button id="tb-undo" type="button" class="toolbtn" title="復原最後一筆">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 7"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
       </button>
       <button id="tb-clear" type="button" class="toolbtn" title="清空全部筆跡">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3"/></svg>
@@ -170,6 +170,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=20260816b"></script>
 </body>
 </html>

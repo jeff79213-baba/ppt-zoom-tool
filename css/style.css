@@ -211,21 +211,6 @@ html, body {
 .doc-item.active .doc-del { color: rgba(11,26,34,.6); }
 .doc-item.active .doc-del:hover { color: #0b1a22; background: rgba(0,0,0,.18); }
 
-/* 放大鏡形狀面板 */
-#mag-panel {
-  position: absolute;
-  left: 14px;
-  bottom: 58px;
-  display: flex;
-  padding: 8px 10px;
-  background: rgba(20,23,28,.94);
-  backdrop-filter: blur(6px);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.45);
-}
-#mag-panel[hidden] { display: none; }
-#mag-panel .shapes { grid-template-columns: repeat(2, 1fr); }
-
 /* 放大鏡視窗 */
 .mag-window {
   position: fixed;
@@ -242,7 +227,6 @@ html, body {
 }
 .mag-window.ready { opacity: 1; }
 .mag-window canvas { display: block; }
-.mag-window.mag-circle { border-radius: 50%; }
 .mag-close {
   position: absolute;
   top: 4px;
@@ -285,9 +269,10 @@ html, body {
   box-shadow: 0 4px 16px rgba(0,0,0,.45);
 }
 #pen-panel[hidden] { display: none; }
-/* 桌面版使用工具列內嵌的筆選項，浮動面板不需要 */
+/* 桌面版使用工具列內嵌的筆選項，浮動面板與縮放按鈕不需要 */
 @media (min-width: 861px) {
   #pen-panel { display: none; }
+  .tb-zoomstep { display: none; }
 }
 
 .shapes {
@@ -371,6 +356,9 @@ html, body {
 
   .file-btn { max-width: 110px; }
 
+  /* 手機版按鈕略縮小，讓兩排放得下所有工具＋縮放鈕 */
+  .tb-pin, .toolbtn { width: 36px; height: 36px; }
+
   /* 手機版筆選項改放浮動面板，工具列維持兩排 */
   .pen-options { display: none; }
   #pen-panel {
@@ -380,14 +368,12 @@ html, body {
     align-items: center;
     max-width: calc(100vw - 16px);
   }
-  #pen-panel .swatches { grid-template-columns: repeat(4, 1fr); }
-
-  /* 放大鏡形狀面板：固定在兩排工具列上方 */
-  #mag-panel {
-    position: absolute;
-    left: 8px;
-    bottom: 112px;
-  }
+  /* 浮動面板觸控目標加大 */
+  #pen-panel .shapes { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  #pen-panel .shapebtn { width: 34px; height: 34px; }
+  #pen-panel .swatches { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  #pen-panel .sw { width: 24px; height: 24px; }
+  #pen-panel .pen-width { width: 90px; }
 
   #doc-list { max-height: 200px; }
 
