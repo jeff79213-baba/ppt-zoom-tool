@@ -518,16 +518,12 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     // 目標視窗尺寸：以世界座標範圍 × 目前顯示倍率 × MAG_FACTOR
-    const winW = Math.max(80, b.w * state.scale * MAG_FACTOR);
-    const winH = Math.max(80, b.h * state.scale * MAG_FACTOR);
+    let winW = Math.max(80, b.w * state.scale * MAG_FACTOR);
+    let winH = Math.max(80, b.h * state.scale * MAG_FACTOR);
 
     const el = document.createElement("div");
     el.className = "mag-window";
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(winW * dpr);
-    canvas.height = Math.round(winH * dpr);
-    canvas.style.width = winW + "px";
-    canvas.style.height = winH + "px";
     el.appendChild(canvas);
     document.body.appendChild(el);
 
@@ -540,7 +536,18 @@
     const sh = b.h * state.scale;
     const img = $pdfLayer.toDataURL();
     const srcImg = new Image();
-    srcImg.onload = () => {
+
+    function setWinSize(w, h) {
+      winW = Math.max(80, Math.round(w));
+      winH = Math.max(80, Math.round(h));
+      canvas.width = Math.round(winW * dpr);
+      canvas.height = Math.round(winH * dpr);
+      canvas.style.width = winW + "px";
+      canvas.style.height = winH + "px";
+    }
+
+    function renderWin() {
+      if (!srcImg.complete || !srcImg.naturalWidth) return;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, winW, winH);
       // 從 pdf-layer 像素（CSS px）裁剪後放大繪製
@@ -550,8 +557,13 @@
       g.strokeStyle = "rgba(255,255,255,.85)";
       g.lineWidth = 2;
       g.strokeRect(1, 1, winW - 2, winH - 2);
+    }
+
+    srcImg.onload = () => {
+      renderWin();
       el.classList.add("ready");
     };
+    setWinSize(winW, winH);
     srcImg.src = img;
 
     // 定位：預設放在圈選區域右下偏
@@ -576,10 +588,19 @@
     });
     el.appendChild(close);
 
+    // 角落縮放把手：拖曳可放大/縮小視窗
+    const grip = document.createElement("button");
+    grip.type = "button";
+    grip.className = "mag-grip";
+    grip.title = "拖曳縮放視窗";
+    grip.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/></svg>';
+    el.appendChild(grip);
+
     // 拖動
     let dragging = false, dx = 0, dy = 0;
     el.addEventListener("pointerdown", (e) => {
-      if (e.target === close) return;
+      if (e.target === close || e.target === grip) return;
       dragging = true;
       dx = e.clientX - left;
       dy = e.clientY - top;
@@ -595,6 +616,27 @@
       el.style.top = top + "px";
     });
     el.addEventListener("pointerup", () => { dragging = false; });
+
+    let resizing = false, rStartX = 0, rStartY = 0, rw = 0, rh = 0;
+    grip.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      resizing = true;
+      rStartX = e.clientX;
+      rStartY = e.clientY;
+      rw = winW;
+      rh = winH;
+      grip.setPointerCapture(e.pointerId);
+    });
+    grip.addEventListener("pointermove", (e) => {
+      if (!resizing) return;
+      setWinSize(rw + (e.clientX - rStartX), rh + (e.clientY - rStartY));
+      left = Math.max(0, Math.min(left, $viewer.clientWidth - winW));
+      top = Math.max(0, Math.min(top, $viewer.clientHeight - winH));
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+      renderWin();
+    });
+    grip.addEventListener("pointerup", () => { resizing = false; });
 
     state.magnifiers.push({ el });
   }
