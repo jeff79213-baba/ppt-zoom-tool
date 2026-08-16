@@ -518,8 +518,9 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     // 目標視窗尺寸：以世界座標範圍 × 目前顯示倍率 × MAG_FACTOR
-    let winW = Math.max(80, b.w * state.scale * MAG_FACTOR);
-    let winH = Math.max(80, b.h * state.scale * MAG_FACTOR);
+    const ratio = Math.max(0.05, (b.w * state.scale * MAG_FACTOR) / Math.max(1, b.h * state.scale * MAG_FACTOR));
+    let winW = Math.max(80, Math.round(b.w * state.scale * MAG_FACTOR));
+    let winH = Math.max(80, Math.round(b.h * state.scale * MAG_FACTOR));
 
     const el = document.createElement("div");
     el.className = "mag-window";
@@ -538,8 +539,12 @@
     const srcImg = new Image();
 
     function setWinSize(w, h) {
-      winW = Math.max(80, Math.round(w));
-      winH = Math.max(80, Math.round(h));
+      w = Math.round(Math.max(80, w));
+      h = Math.round(Math.max(80, h));
+      if (w === 80) h = Math.round(80 / ratio);
+      else if (h === 80) w = Math.round(80 * ratio);
+      winW = w;
+      winH = h;
       canvas.width = Math.round(winW * dpr);
       canvas.height = Math.round(winH * dpr);
       canvas.style.width = winW + "px";
@@ -588,6 +593,20 @@
     });
     el.appendChild(close);
 
+    // 長按出現的刪除鈕（視窗過大超出畫面時，角落 × 點不到也能刪除）
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "mag-del";
+    del.title = "刪除此放大鏡";
+    del.innerHTML =
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+    del.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+    del.addEventListener("click", () => {
+      el.remove();
+      state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
+    });
+    el.appendChild(del);
+
     // 角落縮放把手：拖曳可放大/縮小視窗
     const grip = document.createElement("button");
     grip.type = "button";
@@ -597,16 +616,31 @@
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/></svg>';
     el.appendChild(grip);
 
-    // 拖動
+    // 拖動 ＋ 長按偵測
     let dragging = false, dx = 0, dy = 0;
+    let pressTimer = null, pressX = 0, pressY = 0;
+    const hideDel = () => del.classList.remove("visible");
+    const LONG_PRESS_MS = 600;
     el.addEventListener("pointerdown", (e) => {
       if (e.target === close || e.target === grip) return;
+      hideDel();
       dragging = true;
       dx = e.clientX - left;
       dy = e.clientY - top;
       el.setPointerCapture(e.pointerId);
+      clearTimeout(pressTimer);
+      pressX = e.clientX;
+      pressY = e.clientY;
+      pressTimer = setTimeout(() => {
+        del.classList.add("visible");
+        pressTimer = null;
+      }, LONG_PRESS_MS);
     });
     el.addEventListener("pointermove", (e) => {
+      if (pressTimer && (Math.abs(e.clientX - pressX) > 8 || Math.abs(e.clientY - pressY) > 8)) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
       if (!dragging) return;
       left = e.clientX - dx;
       top = e.clientY - dy;
@@ -615,7 +649,19 @@
       el.style.left = left + "px";
       el.style.top = top + "px";
     });
-    el.addEventListener("pointerup", () => { dragging = false; });
+    el.addEventListener("pointerup", () => {
+      dragging = false;
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    });
+    el.addEventListener("pointercancel", () => {
+      dragging = false;
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!el.contains(e.target)) hideDel();
+    });
 
     let resizing = false, rStartX = 0, rStartY = 0, rw = 0, rh = 0;
     grip.addEventListener("pointerdown", (e) => {
@@ -629,7 +675,17 @@
     });
     grip.addEventListener("pointermove", (e) => {
       if (!resizing) return;
-      setWinSize(rw + (e.clientX - rStartX), rh + (e.clientY - rStartY));
+      const dxr = e.clientX - rStartX;
+      const dyr = e.clientY - rStartY;
+      let w, h;
+      if (Math.abs(dyr) > Math.abs(dxr)) {
+        h = rh + dyr;
+        w = h * ratio;
+      } else {
+        w = rw + dxr;
+        h = w / ratio;
+      }
+      setWinSize(w, h);
       left = Math.max(0, Math.min(left, $viewer.clientWidth - winW));
       top = Math.max(0, Math.min(top, $viewer.clientHeight - winH));
       el.style.left = left + "px";

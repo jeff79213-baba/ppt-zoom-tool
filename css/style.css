@@ -206,6 +206,26 @@ html, body {
   justify-content: center;
 }
 .mag-grip:hover { background: rgba(0,0,0,.7); }
+.mag-del {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(220,50,50,.95);
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+.mag-del.visible { display: flex; }
+.mag-del:hover { background: #c62828; }
 
 .tb-sep {
   width: 1px;
