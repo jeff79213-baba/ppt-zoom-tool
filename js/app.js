@@ -296,6 +296,12 @@
   $viewer.addEventListener("pointerup", pointerUp);
   $viewer.addEventListener("pointercancel", pointerUp);
 
+  // 停用瀏覽器原生「連點兩下／雙指縮放」頁面放大
+  document.addEventListener("dblclick", (e) => e.preventDefault());
+  ["gesturestart", "gesturechange", "gestureend"].forEach((ev) =>
+    document.addEventListener(ev, (e) => e.preventDefault())
+  );
+
   // 縮放到世界座標矩形（置中填滿）
   function zoomToWorldBox(b) {
     const w = $viewer.clientWidth, h = $viewer.clientHeight;
@@ -340,21 +346,27 @@
   // ---------- PDF 載入 ----------
   async function loadFile(file) {
     if (file.type && file.type !== "application/pdf") return;
+    let buf, pdfDoc;
     try {
-      const buf = await file.arrayBuffer();
-      const pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-      const doc = {
-        pdfDoc: pdfDoc,
-        numPages: pdfDoc.numPages,
-        page: 1,
-        strokes: [],
-        fileName: file.name || "PDF",
-      };
-      state.docs.push(doc);
-      $dropzone.classList.add("hidden");
-      await switchDoc(state.docs.length - 1);
+      buf = await file.arrayBuffer();
+      pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
     } catch (err) {
       alert("無法讀取此 PDF：" + err.message);
+      return;
+    }
+    const doc = {
+      pdfDoc: pdfDoc,
+      numPages: pdfDoc.numPages,
+      page: 1,
+      strokes: [],
+      fileName: file.name || "PDF",
+    };
+    state.docs.push(doc);
+    $dropzone.classList.add("hidden");
+    try {
+      await switchDoc(state.docs.length - 1);
+    } catch (err) {
+      console.error("PDF 渲染失敗：", err);
     }
   }
 
