@@ -377,28 +377,36 @@ html, body {
 /* ---------- 工具列收合 ---------- */
 #tb-collapse { color: #7f8896; }
 
-#tb-expand {
+#tb-mini {
   position: fixed;
   left: 50%;
   bottom: 14px;
   transform: translateX(-50%);
-  width: 44px;
-  height: 44px;
   display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(20,23,28,.92);
+  border-radius: 12px;
+  box-shadow: 0 -2px 14px rgba(0,0,0,.4);
+  z-index: 40;
+  pointer-events: auto;
+  touch-action: none;
+}
+.tb-mini-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 50%;
-  background: rgba(20,23,28,.92);
+  border-radius: 9px;
+  background: transparent;
   color: #cdd4dd;
   cursor: pointer;
-  z-index: 40;
-  pointer-events: auto;
-  box-shadow: 0 -2px 14px rgba(0,0,0,.4);
-  touch-action: none;
 }
-#tb-expand:hover { color: #fff; }
+.tb-mini-btn:hover { color: #fff; background: rgba(255,255,255,.10); }
 
 #tb-wrap.collapsed #toolbar,
 #tb-wrap.collapsed #pen-panel { display: none; }
-#tb-wrap.collapsed #tb-expand { display: flex; }
+#tb-wrap.collapsed #tb-mini { display: flex; }
