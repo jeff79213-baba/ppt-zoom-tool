@@ -666,8 +666,15 @@
 
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen().catch(() => {});
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      return;
+    }
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      try { req.call(el); } catch (_) {}
+    }
   }
   document.getElementById("tb-fullscreen").addEventListener("click", toggleFullscreen);
   function updateFsIcon() {
@@ -690,8 +697,11 @@
     let pos = null;
     try { pos = JSON.parse(localStorage.getItem("pptzoom_toolbarPos")); } catch (_) {}
     if (pos && typeof pos.x === "number" && typeof pos.y === "number") {
-      $toolbar.style.left = pos.x + "px";
-      $toolbar.style.top = pos.y + "px";
+      const tw = $toolbar.offsetWidth, th = $toolbar.offsetHeight;
+      const x = Math.max(4, Math.min(pos.x, window.innerWidth - tw - 4));
+      const y = Math.max(4, Math.min(pos.y, window.innerHeight - th - 4));
+      $toolbar.style.left = x + "px";
+      $toolbar.style.top = y + "px";
       $toolbar.style.bottom = "auto";
       $toolbar.style.transform = "none";
     }
@@ -722,7 +732,7 @@
       $toolbar.classList.remove("dragging");
       try { $tbDrag.releasePointerCapture(e.pointerId); } catch (_) {}
       const r = $toolbar.getBoundingClientRect();
-      localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) }));
+      try { localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) })); } catch (_) {}
     };
     $tbDrag.addEventListener("pointerup", endDrag);
     $tbDrag.addEventListener("pointercancel", endDrag);
@@ -730,7 +740,9 @@
 
   (function initToolbarOpacity() {
     let v = 100;
-    const saved = parseInt(localStorage.getItem("pptzoom_toolbarOpacity"), 10);
+    let savedRaw = null;
+    try { savedRaw = localStorage.getItem("pptzoom_toolbarOpacity"); } catch (_) {}
+    const saved = parseInt(savedRaw, 10);
     if (!isNaN(saved) && saved >= 0 && saved <= 100) v = saved;
     $tbOpacity.value = v;
     applyOpacity(v);
@@ -739,12 +751,13 @@
     }
     $tbOpacity.addEventListener("input", () => {
       applyOpacity(+$tbOpacity.value);
-      localStorage.setItem("pptzoom_toolbarOpacity", $tbOpacity.value);
+      try { localStorage.setItem("pptzoom_toolbarOpacity", $tbOpacity.value); } catch (_) {}
     });
   })();
 
   // ---------- 快捷鍵 ----------
   window.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
     const doc = cur();
     if (e.key === "f" || e.key === "F") { toggleFullscreen(); return; }
     if (!doc) return;
