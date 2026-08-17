@@ -373,3 +373,30 @@ html, body {
   #pen-panel .swatches { grid-template-columns: repeat(8, 1fr); gap: 8px; }
   #pen-panel .sw { width: 26px; height: 26px; }
 }
+
+/* ---------- 工具列收合 ---------- */
+#tb-collapse { color: #7f8896; }
+
+#tb-expand {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(20,23,28,.92);
+  color: #cdd4dd;
+  cursor: pointer;
+  z-index: 40;
+  box-shadow: 0 -2px 14px rgba(0,0,0,.4);
+  touch-action: none;
+}
+#tb-expand:hover { color: #fff; }
+
+#tb-wrap.collapsed #toolbar { display: none; }
+#tb-wrap.collapsed #tb-expand { display: flex; }
