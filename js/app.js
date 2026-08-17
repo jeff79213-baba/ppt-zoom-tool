@@ -19,6 +19,9 @@
   const $penOpts  = document.getElementById("pen-panel");
   const $tbCollapse = document.getElementById("tb-collapse");
   const $tbExpand   = document.getElementById("tb-expand");
+  const $tbMini       = document.getElementById("tb-mini");
+  const $tbExpandPrev = document.getElementById("tb-expand-prev");
+  const $tbExpandNext = document.getElementById("tb-expand-next");
   const $pgFile   = document.getElementById("pg-file");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
@@ -452,6 +455,7 @@
     for (const [t, id] of Object.entries(toolBtns)) {
       document.getElementById(id).classList.toggle("active", t === tool);
     }
+    if (!state.tbLocked && !$tbWrap.classList.contains("collapsed")) setToolbarCollapsed(true);
   }
   for (const [tool, id] of Object.entries(toolBtns)) {
     document.getElementById(id).addEventListener("click", () => setTool(tool));
@@ -675,6 +679,8 @@
   }
   $tbCollapse.addEventListener("click", () => setToolbarCollapsed(true));
   $tbExpand.addEventListener("click", () => setToolbarCollapsed(false));
+  $tbExpandPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
+  $tbExpandNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
 
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
