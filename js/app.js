@@ -17,6 +17,8 @@
   const $toolbar = document.getElementById("toolbar");
   const $tbOpacity = document.getElementById("tb-opacity");
   const $penOpts  = document.getElementById("pen-panel");
+  const $tbCollapse = document.getElementById("tb-collapse");
+  const $tbExpand   = document.getElementById("tb-expand");
   const $pgFile   = document.getElementById("pg-file");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
@@ -664,8 +666,22 @@
     state.magnifiers.push({ el });
   }
 
+  // ---------- 工具列收合 ----------
+  function isIOS() {
+    return /iP(hone|ad|od)/.test(navigator.userAgent) && !window.MSStream;
+  }
+  function setToolbarCollapsed(collapsed) {
+    $tbWrap.classList.toggle("collapsed", collapsed);
+  }
+  $tbCollapse.addEventListener("click", () => setToolbarCollapsed(true));
+  $tbExpand.addEventListener("click", () => setToolbarCollapsed(false));
+
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
+    if (isIOS()) {
+      $tbWrap.classList.toggle("collapsed");
+      return;
+    }
     if (document.fullscreenElement) {
       if (document.exitFullscreen) document.exitFullscreen();
       return;
@@ -684,7 +700,10 @@
       ? '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>'
       : '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>';
   }
-  document.addEventListener("fullscreenchange", updateFsIcon);
+  document.addEventListener("fullscreenchange", () => {
+    updateFsIcon();
+    if (!isIOS()) setToolbarCollapsed(!!document.fullscreenElement);
+  });
 
   // ---------- 工具列釘選＝鎖定位置 / 拖動 ----------
   $tbPin.addEventListener("click", () => {
