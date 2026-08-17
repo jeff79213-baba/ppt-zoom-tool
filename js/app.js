@@ -13,6 +13,8 @@
   const $pgNext   = document.getElementById("pg-next");
   const $tbWrap   = document.getElementById("tb-wrap");
   const $tbPin    = document.getElementById("tb-pin");
+  const $tbDrag  = document.getElementById("tb-drag");
+  const $toolbar = document.getElementById("toolbar");
   const $penOpts  = document.getElementById("pen-panel");
   const $pgFile   = document.getElementById("pg-file");
   const $tbDelmag = document.getElementById("tb-delmag");
@@ -40,6 +42,7 @@
     pointer: null,               // 進行中的指標操作
     tempBox: null,               // 框選中的虛線矩形（世界座標）
   };
+  state.tbLocked = false;
 
   function cur() { return state.docs[state.current]; }
 
@@ -691,8 +694,54 @@
   }
   document.addEventListener("fullscreenchange", updateFsIcon);
 
-  // 工具列釘選
-  $tbPin.addEventListener("click", () => $tbWrap.classList.toggle("pinned"));
+  // ---------- 工具列釘選＝鎖定位置 / 拖動 ----------
+  $tbPin.addEventListener("click", () => {
+    state.tbLocked = !state.tbLocked;
+    $toolbar.classList.toggle("tb-locked", state.tbLocked);
+    $tbWrap.classList.toggle("pinned", state.tbLocked);
+  });
+
+  (function initToolbarPos() {
+    let pos = null;
+    try { pos = JSON.parse(localStorage.getItem("pptzoom_toolbarPos")); } catch (_) {}
+    if (pos && typeof pos.x === "number" && typeof pos.y === "number") {
+      $toolbar.style.left = pos.x + "px";
+      $toolbar.style.top = pos.y + "px";
+      $toolbar.style.bottom = "auto";
+      $toolbar.style.transform = "none";
+    }
+    // 拖動
+    let dragging = false, dx = 0, dy = 0;
+    $tbDrag.addEventListener("pointerdown", (e) => {
+      if (state.tbLocked) return;
+      e.preventDefault();
+      dragging = true;
+      dx = e.clientX - $toolbar.getBoundingClientRect().left;
+      dy = e.clientY - $toolbar.getBoundingClientRect().top;
+      $toolbar.classList.add("dragging");
+      $tbDrag.setPointerCapture(e.pointerId);
+    });
+    $tbDrag.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const x = e.clientX - dx;
+      const y = e.clientY - dy;
+      const tw = $toolbar.offsetWidth, th = $toolbar.offsetHeight;
+      $toolbar.style.left = Math.max(4, Math.min(x, window.innerWidth - tw - 4)) + "px";
+      $toolbar.style.top = Math.max(4, Math.min(y, window.innerHeight - th - 4)) + "px";
+      $toolbar.style.bottom = "auto";
+      $toolbar.style.transform = "none";
+    });
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      $toolbar.classList.remove("dragging");
+      try { $tbDrag.releasePointerCapture(e.pointerId); } catch (_) {}
+      const r = $toolbar.getBoundingClientRect();
+      localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) }));
+    };
+    $tbDrag.addEventListener("pointerup", endDrag);
+    $tbDrag.addEventListener("pointercancel", endDrag);
+  })();
 
   // ---------- 放大鏡視窗選取 / 刪除 ----------
   let selectedMag = null;

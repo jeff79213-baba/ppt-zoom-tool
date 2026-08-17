@@ -68,7 +68,7 @@ html, body {
 }
 #btn-open:hover { background: #6fd2fa; }
 
-/* ---------- 底部工具列 ---------- */
+/* ---------- 工具列（常駐、可拖動） ---------- */
 #tb-wrap {
   position: fixed;
   left: 0; right: 0; bottom: 0;
@@ -76,34 +76,39 @@ html, body {
   z-index: 40;
 }
 
-#tb-edge {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 10px;
-  background: rgba(255,255,255,.05);
-}
-
 #toolbar {
-  position: absolute;
+  position: fixed;
   left: 50%;
-  bottom: 0;
-  transform: translateX(-50%) translateY(110%);
+  bottom: 8px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 14px;
+  padding: 8px 10px;
   background: rgba(20,23,28,.92);
   backdrop-filter: blur(6px);
-  border-radius: 14px 14px 0 0;
-  transition: transform .28s ease .9s;
+  border-radius: 14px;
   box-shadow: 0 -2px 14px rgba(0,0,0,.4);
+  touch-action: none;
 }
+#toolbar.dragging { user-select: none; }
 
-#tb-wrap:hover #toolbar,
-#tb-wrap.pinned #toolbar {
-  transform: translateX(-50%) translateY(0);
-  transition-delay: 0s;
+.tb-drag {
+  width: 26px;
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #7f8896;
+  cursor: grab;
+  touch-action: none;
 }
+.tb-drag:hover { background: rgba(255,255,255,.10); color: #fff; }
+#toolbar.tb-locked .tb-drag { cursor: default; color: #5a6270; }
 
 .tb-group {
   display: flex;
@@ -315,24 +320,18 @@ html, body {
 /* 觸控裝置或窄螢幕：工具列常駐顯示，不依賴 hover */
 @media (hover: none), (max-width: 860px) {
   #tb-wrap { height: auto; }
-  #tb-edge { display: none; }
   #tb-pin { display: none; }
 
   #toolbar {
-    position: static;
-    width: 100%;
-    transform: none;
+    position: fixed;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 12px);
     flex-wrap: wrap;
     justify-content: center;
-    border-radius: 12px 12px 0 0;
-    transition: none;
+    border-radius: 12px;
   }
-  #tb-wrap:hover #toolbar,
-  #tb-wrap.pinned #toolbar {
-    transform: none;
-    transition-delay: 0s;
-  }
-
   .tb-sep { display: none; }
 }
 
