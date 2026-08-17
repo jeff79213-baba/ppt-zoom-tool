@@ -758,7 +758,16 @@
       $toolbar.classList.remove("dragging");
       try { $tbDrag.releasePointerCapture(e.pointerId); } catch (_) {}
       const r = $toolbar.getBoundingClientRect();
-      try { localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) })); } catch (_) {}
+      const vw = window.innerWidth;
+      const nearLeft = r.left <= 8;
+      const nearRight = r.left + r.width >= vw - 8;
+      $toolbar.classList.toggle("edge-left", nearLeft && !nearRight);
+      $toolbar.classList.toggle("edge-right", nearRight && !nearLeft);
+      $tbWrap.classList.toggle("edge-left", nearLeft && !nearRight);
+      $tbWrap.classList.toggle("edge-right", nearRight && !nearLeft);
+      if (!nearLeft && !nearRight) {
+        try { localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) })); } catch (_) {}
+      }
     };
     $tbDrag.addEventListener("pointerup", endDrag);
     $tbDrag.addEventListener("pointercancel", endDrag);
