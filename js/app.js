@@ -709,7 +709,7 @@
   }
   document.addEventListener("fullscreenchange", () => {
     updateFsIcon();
-    if (!isIOS()) setToolbarCollapsed(!!document.fullscreenElement);
+    if (!isIOS() && document.fullscreenElement) setToolbarCollapsed(true);
   });
 
   // ---------- 工具列釘選＝鎖定位置 / 拖動 ----------

@@ -430,3 +430,12 @@ html, body {
 
 #tb-wrap.edge-left #tb-mini { left: 8px; right: auto; top: 50%; bottom: auto; transform: translateY(-50%); }
 #tb-wrap.edge-right #tb-mini { left: auto; right: 8px; top: 50%; bottom: auto; transform: translateY(-50%); }
+
+#tb-wrap.edge-left #pen-panel,
+#tb-wrap.edge-right #pen-panel {
+  display: flex;
+  left: 14px;
+  bottom: auto;
+  top: calc(50% + 70px);
+  max-width: 220px;
+}
