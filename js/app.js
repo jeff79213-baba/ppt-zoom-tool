@@ -765,6 +765,12 @@
       $toolbar.classList.toggle("edge-right", nearRight && !nearLeft);
       $tbWrap.classList.toggle("edge-left", nearLeft && !nearRight);
       $tbWrap.classList.toggle("edge-right", nearRight && !nearLeft);
+      if (nearLeft || nearRight) {
+        $toolbar.style.left = "";
+        $toolbar.style.top = "";
+        $toolbar.style.bottom = "";
+        $toolbar.style.transform = "";
+      }
       if (!nearLeft && !nearRight) {
         try { localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) })); } catch (_) {}
       }
