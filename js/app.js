@@ -15,6 +15,7 @@
   const $tbPin    = document.getElementById("tb-pin");
   const $tbDrag  = document.getElementById("tb-drag");
   const $toolbar = document.getElementById("toolbar");
+  const $tbOpacity = document.getElementById("tb-opacity");
   const $penOpts  = document.getElementById("pen-panel");
   const $pgFile   = document.getElementById("pg-file");
   const $tbDelmag = document.getElementById("tb-delmag");
@@ -741,6 +742,21 @@
     };
     $tbDrag.addEventListener("pointerup", endDrag);
     $tbDrag.addEventListener("pointercancel", endDrag);
+  })();
+
+  (function initToolbarOpacity() {
+    let v = 100;
+    const saved = parseInt(localStorage.getItem("pptzoom_toolbarOpacity"), 10);
+    if (!isNaN(saved) && saved >= 0 && saved <= 100) v = saved;
+    $tbOpacity.value = v;
+    applyOpacity(v);
+    function applyOpacity(val) {
+      $toolbar.style.opacity = (val / 100).toFixed(2);
+    }
+    $tbOpacity.addEventListener("input", () => {
+      applyOpacity(+$tbOpacity.value);
+      localStorage.setItem("pptzoom_toolbarOpacity", $tbOpacity.value);
+    });
   })();
 
   // ---------- 放大鏡視窗選取 / 刪除 ----------

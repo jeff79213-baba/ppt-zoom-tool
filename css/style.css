@@ -223,6 +223,21 @@ html, body {
   margin: 0 4px;
 }
 
+.tb-opacity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #7f8896;
+  padding: 0 4px;
+}
+.tb-opacity input {
+  width: 70px;
+  accent-color: #4fc3f7;
+}
+@media (max-width: 860px) {
+  .tb-opacity input { width: 48px; }
+}
+
 /* ---------- 筆選項面板（浮動，手機版使用） ---------- */
 #pen-panel {
   position: absolute;
