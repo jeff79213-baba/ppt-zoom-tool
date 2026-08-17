@@ -212,10 +212,6 @@ html, body {
   justify-content: center;
 }
 .mag-grip:hover { background: rgba(0,0,0,.7); }
-.mag-window.selected { box-shadow: 0 0 0 3px #4fc3f7, 0 8px 24px rgba(0,0,0,.55); }
-#tb-delmag { color: #ff8a80; }
-#tb-delmag:hover { color: #fff; }
-
 .tb-sep {
   width: 1px;
   height: 30px;
@@ -358,9 +354,6 @@ html, body {
 
   /* 手機版按鈕略縮小，讓兩排放得下所有工具＋縮放鈕 */
   .tb-pin, .toolbtn { width: 36px; height: 36px; }
-
-  /* 選取放大鏡出現刪除鈕時，暫時隱藏檔名保持兩排 */
-  #tb-wrap.has-mag .file-btn { display: none; }
 
   /* 手機版筆選項改放浮動面板，工具列維持兩排 */
   .pen-options { display: none; }

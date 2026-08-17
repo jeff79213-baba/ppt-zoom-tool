@@ -18,7 +18,6 @@
   const $tbOpacity = document.getElementById("tb-opacity");
   const $penOpts  = document.getElementById("pen-panel");
   const $pgFile   = document.getElementById("pg-file");
-  const $tbDelmag = document.getElementById("tb-delmag");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
   const ctxMark = $markLayer.getContext("2d");
@@ -505,7 +504,10 @@
   });
   document.getElementById("tb-clear").addEventListener("click", () => {
     const doc = cur();
-    if (doc && doc.strokes.length) { doc.strokes = []; renderAll(); }
+    if (!doc) return;
+    doc.strokes = [];
+    clearMagnifiers();
+    renderAll();
   });
   document.getElementById("tb-reset").addEventListener("click", resetView);
 
@@ -592,7 +594,10 @@
     close.className = "mag-close";
     close.textContent = "×";
     close.addEventListener("pointerdown", (ev) => ev.stopPropagation());
-    close.addEventListener("click", () => removeMag(el));
+    close.addEventListener("click", () => {
+      el.remove();
+      state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
+    });
     el.appendChild(close);
 
     // 角落縮放把手：拖曳可放大/縮小視窗
@@ -604,29 +609,16 @@
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/></svg>';
     el.appendChild(grip);
 
-    // 拖動 ＋ 長按偵測（長按＝選取該放大鏡，工具列出現刪除鈕）
+    // 拖動（長按選取機制已移除）
     let dragging = false, dx = 0, dy = 0;
-    let pressTimer = null, pressX = 0, pressY = 0;
-    const LONG_PRESS_MS = 600;
     el.addEventListener("pointerdown", (e) => {
       if (e.target === close || e.target === grip) return;
       dragging = true;
       dx = e.clientX - left;
       dy = e.clientY - top;
       el.setPointerCapture(e.pointerId);
-      clearTimeout(pressTimer);
-      pressX = e.clientX;
-      pressY = e.clientY;
-      pressTimer = setTimeout(() => {
-        selectMag(el);
-        pressTimer = null;
-      }, LONG_PRESS_MS);
     });
     el.addEventListener("pointermove", (e) => {
-      if (pressTimer && (Math.abs(e.clientX - pressX) > 8 || Math.abs(e.clientY - pressY) > 8)) {
-        clearTimeout(pressTimer);
-        pressTimer = null;
-      }
       if (!dragging) return;
       left = e.clientX - dx;
       top = e.clientY - dy;
@@ -635,16 +627,8 @@
       el.style.left = left + "px";
       el.style.top = top + "px";
     });
-    el.addEventListener("pointerup", () => {
-      dragging = false;
-      clearTimeout(pressTimer);
-      pressTimer = null;
-    });
-    el.addEventListener("pointercancel", () => {
-      dragging = false;
-      clearTimeout(pressTimer);
-      pressTimer = null;
-    });
+    el.addEventListener("pointerup", () => { dragging = false; });
+    el.addEventListener("pointercancel", () => { dragging = false; });
 
     let resizing = false, rStartX = 0, rStartY = 0, rw = 0, rh = 0;
     grip.addEventListener("pointerdown", (e) => {
@@ -758,28 +742,6 @@
       localStorage.setItem("pptzoom_toolbarOpacity", $tbOpacity.value);
     });
   })();
-
-  // ---------- 放大鏡視窗選取 / 刪除 ----------
-  let selectedMag = null;
-  function selectMag(el) {
-    document.querySelectorAll(".mag-window").forEach((w) => w.classList.remove("selected"));
-    el.classList.add("selected");
-    selectedMag = el;
-    $tbDelmag.hidden = false;
-    $tbWrap.classList.add("has-mag");
-  }
-  function removeMag(el) {
-    el.remove();
-    state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
-    if (selectedMag === el) {
-      selectedMag = null;
-      $tbDelmag.hidden = true;
-      $tbWrap.classList.remove("has-mag");
-    }
-  }
-  $tbDelmag.addEventListener("click", () => {
-    if (selectedMag) removeMag(selectedMag);
-  });
 
   // ---------- 快捷鍵 ----------
   window.addEventListener("keydown", (e) => {
