@@ -679,7 +679,8 @@
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
     if (isIOS()) {
-      $tbWrap.classList.toggle("collapsed");
+      setToolbarCollapsed(!$tbWrap.classList.contains("collapsed"));
+      updateFsIcon();
       return;
     }
     if (document.fullscreenElement) {

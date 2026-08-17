@@ -399,5 +399,6 @@ html, body {
 }
 #tb-expand:hover { color: #fff; }
 
-#tb-wrap.collapsed #toolbar { display: none; }
+#tb-wrap.collapsed #toolbar,
+#tb-wrap.collapsed #pen-panel { display: none; }
 #tb-wrap.collapsed #tb-expand { display: flex; }
