@@ -23,6 +23,7 @@
   const $tbExpandPrev = document.getElementById("tb-expand-prev");
   const $tbExpandNext = document.getElementById("tb-expand-next");
   const $pgFile   = document.getElementById("pg-file");
+  const $fsHandle = document.getElementById("fs-handle");
 
   const ctxPdf  = $pdfLayer.getContext("2d");
   const ctxMark = $markLayer.getContext("2d");
@@ -684,11 +685,20 @@
   }
   function setToolbarCollapsed(collapsed) {
     $tbWrap.classList.toggle("collapsed", collapsed);
+    if ($fsHandle) $fsHandle.classList.toggle("visible", collapsed && isFullscreen());
   }
   $tbCollapse.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(true); });
   $tbExpand.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(false); });
   $tbExpandPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
   $tbExpandNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
+
+  // 全螢幕底部拉出手把：點擊展開工具列
+  if ($fsHandle) {
+    $fsHandle.addEventListener("click", () => {
+      setToolbarCollapsed(false);
+      $fsHandle.classList.remove("visible");
+    });
+  }
 
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
@@ -717,7 +727,11 @@
   }
   document.addEventListener("fullscreenchange", () => {
     updateFsIcon();
-    if (!isIOS() && document.fullscreenElement) setToolbarCollapsed(true);
+    if (!isIOS() && document.fullscreenElement) {
+      setToolbarCollapsed(true);
+    } else if ($fsHandle) {
+      $fsHandle.classList.remove("visible");
+    }
   });
 
   // ---------- 橫向自動收合 ----------

@@ -413,6 +413,22 @@ html, body {
 #tb-wrap.collapsed.edge-right #pen-panel { display: none; }
 #tb-wrap.collapsed #tb-mini { display: flex; }
 
+/* 全螢幕底部拉出手把 */
+#fs-handle {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  padding: 10px 32px 6px;
+  z-index: 41;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .4s;
+}
+#fs-handle.visible { opacity: 1; }
+
 /* ---------- 側邊直式工具列 ---------- */
 #toolbar.edge-left,
 #toolbar.edge-right {
