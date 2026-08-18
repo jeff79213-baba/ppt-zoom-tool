@@ -533,9 +533,9 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     // 目標視窗尺寸：以世界座標範圍 × 目前顯示倍率 × MAG_FACTOR
-    const ratio = Math.max(0.05, (b.w * state.scale * MAG_FACTOR) / Math.max(1, b.h * state.scale * MAG_FACTOR));
-    let winW = Math.max(80, Math.round(b.w * state.scale * MAG_FACTOR));
-    let winH = Math.max(80, Math.round(b.h * state.scale * MAG_FACTOR));
+    const ratio = Math.max(0.05, (b.w * state.scale) / Math.max(1, b.h * state.scale));
+    let winW = Math.max(80, Math.round(b.w * state.scale));
+    let winH = Math.max(80, Math.round(b.h * state.scale));
 
     const el = document.createElement("div");
     el.className = "mag-window";
