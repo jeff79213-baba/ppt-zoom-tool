@@ -784,6 +784,11 @@
       $toolbar.classList.remove("dragging");
       try { $tbDrag.releasePointerCapture(e.pointerId); } catch (_) {}
       const r = $toolbar.getBoundingClientRect();
+      // 全螢幕模式不套用側邊停靠
+      if (isFullscreen()) {
+        try { localStorage.setItem("pptzoom_toolbarPos", JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) })); } catch (_) {}
+        return;
+      }
       const vw = window.innerWidth;
       const nearLeft = r.left <= 8;
       const nearRight = r.left + r.width >= vw - 8;
@@ -846,4 +851,22 @@
   if (new URLSearchParams(location.search).has("t")) {
     window.__app = { state, cur, zoomAt, setTool, resetView };
   }
+
+  // ---------- PWA 提示橫幅 ----------
+  (function initPwaHint() {
+    const $hint = document.getElementById("pwa-hint");
+    const $close = document.getElementById("pwa-hint-close");
+    if (!$hint || !$close) return;
+    // 不在 PWA standalone 模式下顯示
+    if (matchMedia("(display-mode: standalone)").matches) return;
+    // 不在桌面顯示（桌面沒有「加入主畫面」需求）
+    if (!matchMedia("(hover: none)").matches) return;
+    // 已關閉過
+    if (localStorage.getItem("pptzoom_pwaHintDismissed")) return;
+    $hint.hidden = false;
+    $close.addEventListener("click", () => {
+      $hint.hidden = true;
+      localStorage.setItem("pptzoom_pwaHintDismissed", "1");
+    });
+  })();
 })();

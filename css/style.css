@@ -445,3 +445,31 @@ html, body {
   left: auto;
   right: 14px;
 }
+
+/* ---------- PWA 提示橫幅 ---------- */
+#pwa-hint {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(20,23,28,.94);
+  backdrop-filter: blur(6px);
+  color: #cdd4dd;
+  font-size: 13px;
+  z-index: 100;
+  box-shadow: 0 -2px 12px rgba(0,0,0,.4);
+}
+#pwa-hint-close {
+  border: none;
+  background: transparent;
+  color: #7f8896;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+#pwa-hint-close:hover { color: #fff; }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>簡報縮放導覽工具</title>
-<link rel="stylesheet" href="css/style.css?v=20260817e">
+<link rel="stylesheet" href="css/style.css?v=20260817f">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#23272e">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -195,11 +195,15 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
-<script src="js/app.js?v=20260817e"></script>
+<script src="js/app.js?v=20260817f"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 </script>
+<div id="pwa-hint" hidden>
+  <span>加入主畫面可全螢幕觀看</span>
+  <button id="pwa-hint-close" type="button">✕</button>
+</div>
 </body>
 </html>
