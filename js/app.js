@@ -30,6 +30,22 @@
   const renderCanvas = document.createElement("canvas");
   const ctxRender = renderCanvas.getContext("2d");
 
+  // iOS Safari 快速連續點擊會吞掉合成的 click，統一改用原生 pointerup 即時觸發
+  // 附位移 guard：在按鈕上滑動（非點擊）不觸發，避免誤動作
+  function bindTap(el, fn) {
+    let startX = 0, startY = 0, tapping = false;
+    el.addEventListener("pointerdown", (e) => {
+      tapping = true;
+      startX = e.clientX; startY = e.clientY;
+    });
+    el.addEventListener("pointerup", (e) => {
+      if (!tapping) return;
+      tapping = false;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (dx * dx + dy * dy < 100) fn();
+    });
+  }
+
   // ---------- 狀態 ----------
   const state = {
     docs: [],                     // [{ pdfDoc, numPages, page, strokes, fileName }]
@@ -350,11 +366,11 @@
   }, { passive: false });
 
   // 手機版縮放按鈕（沒有滾輪時用）
-  document.getElementById("tb-zoomin").addEventListener("click", () => {
+  bindTap(document.getElementById("tb-zoomin"), () => {
     if (!cur()) return;
     zoomAt($viewer.clientWidth / 2, $viewer.clientHeight / 2, 1.5);
   });
-  document.getElementById("tb-zoomout").addEventListener("click", () => {
+  bindTap(document.getElementById("tb-zoomout"), () => {
     if (!cur()) return;
     zoomAt($viewer.clientWidth / 2, $viewer.clientHeight / 2, 2 / 3);
   });
@@ -440,12 +456,12 @@
     $pgFile.classList.toggle("active", !!doc);
   }
 
-  $btnOpen.addEventListener("click", () => $file.click());
+  bindTap($btnOpen, () => $file.click());
   $file.addEventListener("change", () => {
     if ($file.files[0]) loadFile($file.files[0]);
   });
 
-  document.getElementById("tb-add").addEventListener("click", () => $file.click());
+  bindTap(document.getElementById("tb-add"), () => $file.click());
 
   ["dragenter", "dragover"].forEach((ev) =>
     $dropzone.addEventListener(ev, (e) => { e.preventDefault(); $dropzone.classList.add("drag"); })
@@ -458,8 +474,8 @@
     if (f) loadFile(f);
   });
 
-  $pgPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
-  $pgNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
+  bindTap($pgPrev, () => { if (cur()) gotoPage(cur().page - 1); });
+  bindTap($pgNext, () => { if (cur()) gotoPage(cur().page + 1); });
 
   // ---------- 工具切換 ----------
   const toolBtns = { glove: "tb-glove", zoom: "tb-zoom", mag: "tb-mag", pen: "tb-pen" };
@@ -476,7 +492,7 @@
     }
   }
   for (const [tool, id] of Object.entries(toolBtns)) {
-    document.getElementById(id).addEventListener("click", () => {
+    bindTap(document.getElementById(id), () => {
       setTool(tool);
       // 畫筆：不立即收合，等使用者從筆選項面板選完後再收合
       if (tool === "pen") {
@@ -489,7 +505,7 @@
 
   // ---------- 筆選項 ----------
   document.querySelectorAll(".shapebtn[data-shape]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindTap(btn, () => {
       state.shape = btn.dataset.shape;
       document.querySelectorAll(".shapebtn[data-shape]").forEach((b) =>
         b.classList.toggle("active", b.dataset.shape === state.shape));
@@ -497,7 +513,7 @@
   });
   // 放大鏡形狀：固定方框，不需要選擇面板
   document.querySelectorAll(".sw").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindTap(btn, () => {
       state.color = btn.dataset.color;
       document.querySelectorAll(".sw").forEach((b) =>
         b.classList.toggle("active", b.dataset.color === state.color));
@@ -518,12 +534,12 @@
   const $penMain     = document.querySelector("#pen-panel .pen-main");
   const $penColors   = document.querySelector("#pen-panel .pen-colors");
   $penColorBtn.style.background = state.color;
-  $penColorBtn.addEventListener("click", () => {
+  bindTap($penColorBtn, () => {
     $penMain.hidden = true;
     $penColors.hidden = false;
   });
   document.querySelectorAll("#pen-panel .pen-colors .sw").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindTap(btn, () => {
       $penColorBtn.style.background = btn.dataset.color;
       $penColors.hidden = true;
       $penMain.hidden = false;
@@ -550,7 +566,7 @@
   }
   // 面板內形狀按鈕選取後收合
   document.querySelectorAll("#pen-panel .shapebtn").forEach((btn) => {
-    btn.addEventListener("click", penOptionSelected);
+    bindTap(btn, penOptionSelected);
   });
   // 粗度滑桿：調整時即時更新預覽，放開後收合
   document.querySelectorAll("#pen-panel .pen-width").forEach((el) => {
@@ -578,18 +594,18 @@
   window.addEventListener("resize", positionPenPanel);
 
   // ---------- Undo / 清空 / 回整頁 ----------
-  document.getElementById("tb-undo").addEventListener("click", () => {
+  bindTap(document.getElementById("tb-undo"), () => {
     const doc = cur();
     if (doc && doc.strokes.length) { doc.strokes.pop(); renderAll(); }
   });
-  document.getElementById("tb-clear").addEventListener("click", () => {
+  bindTap(document.getElementById("tb-clear"), () => {
     const doc = cur();
     if (!doc) return;
     doc.strokes = [];
     clearMagnifiers();
     renderAll();
   });
-  document.getElementById("tb-reset").addEventListener("click", resetView);
+  bindTap(document.getElementById("tb-reset"), resetView);
 
   // ---------- 放大鏡 ----------
   const MAG_FACTOR = 3;
@@ -674,7 +690,7 @@
     close.className = "mag-close";
     close.textContent = "×";
     close.addEventListener("pointerdown", (ev) => ev.stopPropagation());
-    close.addEventListener("click", () => {
+    bindTap(close, () => {
       el.remove();
       state.magnifiers = state.magnifiers.filter((m) => m.el !== el);
     });
@@ -757,25 +773,10 @@
   function setToolbarCollapsed(collapsed) {
     $tbWrap.classList.toggle("collapsed", collapsed);
   }
-  $tbCollapse.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(true); });
-  // iOS 快速連續觸控會吞掉合成的 click，改用原生 pointerup（即時可靠）
-  // 附位移 guard：手指在按鈕上滑動（非點擊）不觸發，避免誤動作
-  function bindMiniTap(el, fn) {
-    let startX = 0, startY = 0, tapping = false;
-    el.addEventListener("pointerdown", (e) => {
-      tapping = true;
-      startX = e.clientX; startY = e.clientY;
-    });
-    el.addEventListener("pointerup", (e) => {
-      if (!tapping) return;
-      tapping = false;
-      const dx = e.clientX - startX, dy = e.clientY - startY;
-      if (dx * dx + dy * dy < 100) fn();
-    });
-  }
-  bindMiniTap($tbExpand, () => { landscapeAuto = false; setToolbarCollapsed(false); });
-  bindMiniTap($tbExpandPrev, () => { if (cur()) gotoPage(cur().page - 1); });
-  bindMiniTap($tbExpandNext, () => { if (cur()) gotoPage(cur().page + 1); });
+  bindTap($tbCollapse, () => { landscapeAuto = false; setToolbarCollapsed(true); });
+  bindTap($tbExpand, () => { landscapeAuto = false; setToolbarCollapsed(false); });
+  bindTap($tbExpandPrev, () => { if (cur()) gotoPage(cur().page - 1); });
+  bindTap($tbExpandNext, () => { if (cur()) gotoPage(cur().page + 1); });
 
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
@@ -797,7 +798,7 @@
       try { req.call(el); } catch (_) {}
     }
   }
-  document.getElementById("tb-fullscreen").addEventListener("click", toggleFullscreen);
+  bindTap(document.getElementById("tb-fullscreen"), toggleFullscreen);
   function updateFsIcon() {
     const icon = document.getElementById("fs-icon");
     const inFs = !!document.fullscreenElement;
@@ -832,7 +833,7 @@
   });
 
   // ---------- 工具列釘選＝鎖定位置 / 拖動 ----------
-  $tbPin.addEventListener("click", () => {
+  bindTap($tbPin, () => {
     state.tbLocked = !state.tbLocked;
     $toolbar.classList.toggle("tb-locked", state.tbLocked);
     $tbWrap.classList.toggle("pinned", state.tbLocked);
@@ -963,7 +964,7 @@
     // 已關閉過
     if (localStorage.getItem("pptzoom_pwaHintDismissed")) return;
     $hint.hidden = false;
-    $close.addEventListener("click", () => {
+    bindTap($close, () => {
       $hint.hidden = true;
       localStorage.setItem("pptzoom_pwaHintDismissed", "1");
     });
