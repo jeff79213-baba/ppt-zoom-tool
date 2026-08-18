@@ -407,8 +407,10 @@ html, body {
 }
 .tb-mini-btn:hover { color: #fff; background: rgba(255,255,255,.10); }
 
-#tb-wrap.collapsed #toolbar,
-#tb-wrap.collapsed #pen-panel { display: none; }
+#tb-wrap.collapsed #toolbar { display: none; }
+#tb-wrap.collapsed #pen-panel,
+#tb-wrap.collapsed.edge-left #pen-panel,
+#tb-wrap.collapsed.edge-right #pen-panel { display: none; }
 #tb-wrap.collapsed #tb-mini { display: flex; }
 
 /* ---------- 側邊直式工具列 ---------- */
