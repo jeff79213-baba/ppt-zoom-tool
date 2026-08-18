@@ -746,6 +746,7 @@
       if (!dragging) return;
       const x = e.clientX - dx;
       const y = e.clientY - dy;
+      $toolbar.style.right = "auto";
       const tw = $toolbar.offsetWidth, th = $toolbar.offsetHeight;
       $toolbar.style.left = Math.max(4, Math.min(x, window.innerWidth - tw - 4)) + "px";
       $toolbar.style.top = Math.max(4, Math.min(y, window.innerHeight - th - 4)) + "px";
@@ -769,6 +770,7 @@
         $toolbar.style.left = "";
         $toolbar.style.top = "";
         $toolbar.style.bottom = "";
+        $toolbar.style.right = "";
         $toolbar.style.transform = "";
       }
       if (!nearLeft && !nearRight) {
