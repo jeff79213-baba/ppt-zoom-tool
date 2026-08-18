@@ -458,6 +458,11 @@
   for (const [tool, id] of Object.entries(toolBtns)) {
     document.getElementById(id).addEventListener("click", () => {
       setTool(tool);
+      // 畫筆：不立即收合，等使用者從筆選項面板選完後再收合
+      if (tool === "pen") {
+        positionPenPanel();
+        return;
+      }
       if (!state.tbLocked && !$tbWrap.classList.contains("collapsed")) setToolbarCollapsed(true);
     });
   }
@@ -484,6 +489,7 @@
     el.addEventListener("input", () => {
       state.width = +el.value;
       widthInputs.forEach((x) => { x.value = el.value; });
+      updatePenWidthDot();
     });
   });
 
@@ -501,8 +507,55 @@
       $penColorBtn.style.background = btn.dataset.color;
       $penColors.hidden = true;
       $penMain.hidden = false;
+      updatePenWidthDot();
+      penOptionSelected();
     });
   });
+
+  // 粗度預覽圓點：依目前粗度/顏色顯示大小
+  const $penWidthDot = document.getElementById("pen-width-dot");
+  function updatePenWidthDot() {
+    if (!$penWidthDot) return;
+    const d = Math.max(6, Math.min(30, state.width * 1.4));
+    $penWidthDot.style.width = d + "px";
+    $penWidthDot.style.height = d + "px";
+    $penWidthDot.style.background = state.color;
+  }
+  updatePenWidthDot();
+
+  // 面板選完任一選項 → 收合功能鍵（畫面筆選項也會一起收合）
+  function penOptionSelected() {
+    if (state.tbLocked) return;
+    if (!$tbWrap.classList.contains("collapsed")) setToolbarCollapsed(true);
+  }
+  // 面板內形狀按鈕選取後收合
+  document.querySelectorAll("#pen-panel .shapebtn").forEach((btn) => {
+    btn.addEventListener("click", penOptionSelected);
+  });
+  // 粗度滑桿：調整時即時更新預覽，放開後收合
+  document.querySelectorAll("#pen-panel .pen-width").forEach((el) => {
+    el.addEventListener("change", penOptionSelected);
+  });
+
+  // 面板定位：置中於工具列上方（連著）
+  function positionPenPanel() {
+    if ($penOpts.hidden) return;
+    // 側邊停靠時交給 CSS 處理
+    if ($tbWrap.classList.contains("edge-left") || $tbWrap.classList.contains("edge-right")) {
+      $penOpts.style.left = "";
+      $penOpts.style.right = "";
+      $penOpts.style.bottom = "";
+      $penOpts.style.transform = "";
+      return;
+    }
+    const r = $toolbar.getBoundingClientRect();
+    $penOpts.style.left = "50%";
+    $penOpts.style.right = "auto";
+    // 面板底部緊貼工具列頂部（連著）
+    $penOpts.style.bottom = (window.innerHeight - r.top) + "px";
+    $penOpts.style.transform = "translateX(-50%)";
+  }
+  window.addEventListener("resize", positionPenPanel);
 
   // ---------- Undo / 清空 / 回整頁 ----------
   document.getElementById("tb-undo").addEventListener("click", () => {

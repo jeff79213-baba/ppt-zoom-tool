@@ -238,15 +238,16 @@ html, body {
 
 /* ---------- 筆選項面板（浮動，手機版使用） ---------- */
 #pen-panel {
-  position: absolute;
-  left: 14px;
-  bottom: 58px;
+  position: fixed;
+  left: 50%;
+  bottom: 66px;
+  transform: translateX(-50%);
   display: flex;
   padding: 8px 10px;
   pointer-events: auto;
   background: rgba(20,23,28,.94);
   backdrop-filter: blur(6px);
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   box-shadow: 0 4px 16px rgba(0,0,0,.45);
 }
 #pen-panel[hidden] { display: none; }
@@ -274,6 +275,25 @@ html, body {
   padding: 4px 2px;
 }
 .pen-colors[hidden] { display: none; }
+/* 粗度控制：預覽圓點 + 滑桿 */
+.pen-width-ctl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 6px;
+}
+.pen-width-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  background: #e53935;
+  transition: width .1s, height .1s;
+}
+.pen-width {
+  width: 56px;
+  accent-color: #4fc3f7;
+}
 /* 桌面版使用工具列內嵌的筆選項，浮動面板與縮放按鈕不需要 */
 @media (min-width: 861px) {
   #pen-panel { display: none; }
@@ -361,9 +381,6 @@ html, body {
   /* 手機版筆選項改放浮動面板，工具列維持兩排 */
   .pen-options { display: none; }
   #pen-panel {
-    position: absolute;
-    left: 8px;
-    bottom: 104px;
     max-width: calc(100vw - 16px);
   }
   /* 浮動面板觸控目標加大 */
@@ -372,6 +389,8 @@ html, body {
   #pen-panel .pen-color { width: 34px; height: 34px; }
   #pen-panel .swatches { grid-template-columns: repeat(8, 1fr); gap: 8px; }
   #pen-panel .sw { width: 26px; height: 26px; }
+  #pen-panel .pen-width-ctl { padding-left: 2px; }
+  #pen-panel .pen-width { width: 52px; }
 }
 
 /* ---------- 工具列收合 ---------- */

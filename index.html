@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>簡報縮放導覽工具</title>
-<link rel="stylesheet" href="css/style.css?v=20260818b">
+<link rel="stylesheet" href="css/style.css?v=20260818c">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#23272e">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -50,6 +50,10 @@
         </button>
       </div>
       <button id="pen-color" type="button" class="pen-color" title="更換顏色"></button>
+      <div class="pen-width-ctl">
+        <span id="pen-width-dot" class="pen-width-dot" title="筆跡粗度預覽"></span>
+        <input id="pen-width" class="pen-width" type="range" min="1" max="30" value="4" title="筆跡粗度">
+      </div>
     </div>
     <div class="pen-colors" hidden>
       <div class="swatches">
@@ -200,10 +204,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
-<script src="js/app.js?v=20260818b"></script>
+<script src="js/app.js?v=20260818c"></script>
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js?v=20260818b').catch(() => {});
+  navigator.serviceWorker.register('./sw.js?v=20260818c').catch(() => {});
 }
 </script>
 </body>
