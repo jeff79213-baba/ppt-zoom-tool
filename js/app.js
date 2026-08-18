@@ -32,17 +32,27 @@
 
   // iOS Safari 快速連續點擊會吞掉合成的 click，統一改用原生 pointerup 即時觸發
   // 附位移 guard：在按鈕上滑動（非點擊）不觸發，避免誤動作
+  // 某些 iOS 版本會以 pointercancel 取代 pointerup：此時依賴 click 兜底，
+  // 用 flag 避免 pointerup 與 click 重複觸發
   function bindTap(el, fn) {
-    let startX = 0, startY = 0, tapping = false;
+    let startX = 0, startY = 0, down = false, ended = false;
     el.addEventListener("pointerdown", (e) => {
-      tapping = true;
+      down = true;
+      ended = false;
       startX = e.clientX; startY = e.clientY;
     });
     el.addEventListener("pointerup", (e) => {
-      if (!tapping) return;
-      tapping = false;
+      if (!down) return;
+      down = false;
+      ended = true;
       const dx = e.clientX - startX, dy = e.clientY - startY;
       if (dx * dx + dy * dy < 100) fn();
+    });
+    el.addEventListener("pointercancel", () => { down = false; });
+    el.addEventListener("click", (e) => {
+      if (ended) { ended = false; return; }
+      // pointerup 被取消（未收到）→ 用 click 兜底，確保 iOS 下仍可觸發
+      fn();
     });
   }
 
@@ -820,10 +830,11 @@
 
   function checkOrientation() {
     if (!isMobileDevice()) return;
-    if (isFullscreen()) return;          // 全螢幕有自己的規則
     if (!landscapeAuto) return;          // 使用者手動操作過
     const landscape = window.innerWidth > window.innerHeight;
-    setToolbarCollapsed(landscape);
+    // 橫向時工具列保持展開，由使用者手動收合
+    void landscape;
+    setToolbarCollapsed(false);
   }
 
   let orientationTimer = null;
