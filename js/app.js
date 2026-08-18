@@ -676,11 +676,17 @@
   function isIOS() {
     return /iP(hone|ad|od)/.test(navigator.userAgent) && !window.MSStream;
   }
+  function isMobileDevice() {
+    return matchMedia("(hover: none)").matches;
+  }
+  function isFullscreen() {
+    return !!document.fullscreenElement || matchMedia("(display-mode: standalone)").matches;
+  }
   function setToolbarCollapsed(collapsed) {
     $tbWrap.classList.toggle("collapsed", collapsed);
   }
-  $tbCollapse.addEventListener("click", () => setToolbarCollapsed(true));
-  $tbExpand.addEventListener("click", () => setToolbarCollapsed(false));
+  $tbCollapse.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(true); });
+  $tbExpand.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(false); });
   $tbExpandPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
   $tbExpandNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
 
@@ -712,6 +718,23 @@
   document.addEventListener("fullscreenchange", () => {
     updateFsIcon();
     if (!isIOS() && document.fullscreenElement) setToolbarCollapsed(true);
+  });
+
+  // ---------- 橫向自動收合 ----------
+  let landscapeAuto = true;  // true = 自動控制中，false = 使用者手動操作過
+
+  function checkOrientation() {
+    if (!isMobileDevice()) return;
+    if (isFullscreen()) return;          // 全螢幕有自己的規則
+    if (!landscapeAuto) return;          // 使用者手動操作過
+    const landscape = window.innerWidth > window.innerHeight;
+    setToolbarCollapsed(landscape);
+  }
+
+  let orientationTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(orientationTimer);
+    orientationTimer = setTimeout(checkOrientation, 150);
   });
 
   // ---------- 工具列釘選＝鎖定位置 / 拖動 ----------
