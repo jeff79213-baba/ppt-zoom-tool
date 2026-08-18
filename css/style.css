@@ -419,8 +419,8 @@ html, body {
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  padding: 10px 32px 6px;
-  z-index: 41;
+  padding: 14px 48px 8px;
+  z-index: 50;
   pointer-events: auto;
   touch-action: none;
   cursor: pointer;
