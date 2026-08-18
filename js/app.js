@@ -23,8 +23,6 @@
   const $tbExpandPrev = document.getElementById("tb-expand-prev");
   const $tbExpandNext = document.getElementById("tb-expand-next");
   const $pgFile   = document.getElementById("pg-file");
-  const $fsHandle = document.getElementById("fs-handle");
-
   const ctxPdf  = $pdfLayer.getContext("2d");
   const ctxMark = $markLayer.getContext("2d");
 
@@ -685,25 +683,19 @@
   }
   function setToolbarCollapsed(collapsed) {
     $tbWrap.classList.toggle("collapsed", collapsed);
-    if ($fsHandle) $fsHandle.classList.toggle("visible", collapsed && isFullscreen());
   }
   $tbCollapse.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(true); });
   $tbExpand.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(false); });
   $tbExpandPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
   $tbExpandNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
 
-  // 全螢幕底部拉出手把：點擊展開工具列
-  if ($fsHandle) {
-    $fsHandle.addEventListener("click", () => {
-      setToolbarCollapsed(false);
-      $fsHandle.classList.remove("visible");
-    });
-  }
-
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
     if (isIOS()) {
-      setToolbarCollapsed(!$tbWrap.classList.contains("collapsed"));
+      // iOS 不支援 Fullscreen API，改用 PWA standalone 或切換收合
+      const collapsing = !$tbWrap.classList.contains("collapsed");
+      setToolbarCollapsed(collapsing);
+      $tbWrap.classList.toggle("fs", collapsing);
       updateFsIcon();
       return;
     }
@@ -727,10 +719,10 @@
   }
   document.addEventListener("fullscreenchange", () => {
     updateFsIcon();
-    if (!isIOS() && document.fullscreenElement) {
+    const inFs = !!document.fullscreenElement;
+    $tbWrap.classList.toggle("fs", inFs);
+    if (!isIOS() && inFs) {
       setToolbarCollapsed(true);
-    } else if ($fsHandle) {
-      $fsHandle.classList.remove("visible");
     }
   });
 
@@ -860,6 +852,11 @@
   // 啟動
   resizeCanvases();
   setTool("glove");
+
+  // PWA standalone 模式：啟動時加上 fs class
+  if (isFullscreen()) {
+    $tbWrap.classList.add("fs");
+  }
 
   // 測試掛鉤：僅在網址帶 ?t 時啟用（正式使用不影響）
   if (new URLSearchParams(location.search).has("t")) {

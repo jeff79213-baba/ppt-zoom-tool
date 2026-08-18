@@ -413,21 +413,21 @@ html, body {
 #tb-wrap.collapsed.edge-right #pen-panel { display: none; }
 #tb-wrap.collapsed #tb-mini { display: flex; }
 
-/* 全螢幕底部拉出手把 */
-#fs-handle {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  padding: 14px 48px 8px;
-  z-index: 50;
-  pointer-events: auto;
-  touch-action: none;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity .4s;
+/* ---------- 全螢幕收合模式（透明控制列） ---------- */
+#tb-wrap.fs #tb-mini {
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: none;
+  border: 1px solid rgba(255,255,255,.15);
 }
-#fs-handle.visible { opacity: 1; }
+#tb-wrap.fs #tb-mini .tb-mini-btn {
+  color: rgba(255,255,255,.65);
+}
+#tb-wrap.fs #tb-mini .tb-mini-btn:hover {
+  background: rgba(255,255,255,.18);
+  color: #fff;
+}
 
 /* ---------- 側邊直式工具列 ---------- */
 #toolbar.edge-left,
