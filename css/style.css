@@ -430,20 +430,24 @@ html, body {
   }
 }
 
-/* ---------- 全螢幕收合模式（透明控制列） ---------- */
+/* ---------- 全螢幕收合模式（隱藏按鈕，無任何視覺提示） ---------- */
 #tb-wrap.fs #tb-mini {
-  background: rgba(255,255,255,.12);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: none;
-  border: 1px solid rgba(255,255,255,.15);
+  border: none;
+  padding: 0;
 }
 #tb-wrap.fs #tb-mini .tb-mini-btn {
-  color: rgba(255,255,255,.65);
+  color: transparent;
+}
+#tb-wrap.fs #tb-mini .tb-mini-btn svg {
+  visibility: hidden;
 }
 #tb-wrap.fs #tb-mini .tb-mini-btn:hover {
-  background: rgba(255,255,255,.18);
-  color: #fff;
+  background: transparent;
+  color: transparent;
 }
 
 /* ---------- 側邊直式工具列 ---------- */
