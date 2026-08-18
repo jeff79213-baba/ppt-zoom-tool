@@ -758,9 +758,24 @@
     $tbWrap.classList.toggle("collapsed", collapsed);
   }
   $tbCollapse.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(true); });
-  $tbExpand.addEventListener("click", () => { landscapeAuto = false; setToolbarCollapsed(false); });
-  $tbExpandPrev.addEventListener("click", () => { if (cur()) gotoPage(cur().page - 1); });
-  $tbExpandNext.addEventListener("click", () => { if (cur()) gotoPage(cur().page + 1); });
+  // iOS 快速連續觸控會吞掉合成的 click，改用原生 pointerup（即時可靠）
+  // 附位移 guard：手指在按鈕上滑動（非點擊）不觸發，避免誤動作
+  function bindMiniTap(el, fn) {
+    let startX = 0, startY = 0, tapping = false;
+    el.addEventListener("pointerdown", (e) => {
+      tapping = true;
+      startX = e.clientX; startY = e.clientY;
+    });
+    el.addEventListener("pointerup", (e) => {
+      if (!tapping) return;
+      tapping = false;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (dx * dx + dy * dy < 100) fn();
+    });
+  }
+  bindMiniTap($tbExpand, () => { landscapeAuto = false; setToolbarCollapsed(false); });
+  bindMiniTap($tbExpandPrev, () => { if (cur()) gotoPage(cur().page - 1); });
+  bindMiniTap($tbExpandNext, () => { if (cur()) gotoPage(cur().page + 1); });
 
   // ---------- 全螢幕 ----------
   function toggleFullscreen() {
