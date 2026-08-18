@@ -193,6 +193,11 @@
   </div>
 </aside>
 
+<div id="pwa-hint" hidden>
+  <span>加入主畫面可全螢幕觀看</span>
+  <button id="pwa-hint-close" type="button">✕</button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 <script src="js/app.js?v=20260817f"></script>
@@ -201,9 +206,5 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 </script>
-<div id="pwa-hint" hidden>
-  <span>加入主畫面可全螢幕觀看</span>
-  <button id="pwa-hint-close" type="button">✕</button>
-</div>
 </body>
 </html>
