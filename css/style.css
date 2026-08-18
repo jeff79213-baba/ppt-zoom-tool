@@ -450,15 +450,31 @@ html, body {
 }
 
 /* ---------- 全螢幕收合模式（隱藏按鈕，無任何視覺提示） ---------- */
+/* 底部三等分大觸控區：左翻頁 / 中功能鍵 / 右翻頁 */
 #tb-wrap.fs #tb-mini {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: none;
+  width: 100%;
+  height: 110px;
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
   border: none;
-  padding: 0;
+  border-radius: 0;
 }
 #tb-wrap.fs #tb-mini .tb-mini-btn {
+  flex: 1 1 0;
+  width: auto;
+  height: 100%;
+  min-width: 0;
+  border-radius: 0;
   color: transparent;
 }
 #tb-wrap.fs #tb-mini .tb-mini-btn svg {
