@@ -438,6 +438,10 @@ html, body {
   display: flex;
   left: 14px;
   bottom: auto;
-  top: calc(50% + 70px);
+  top: calc(50vh + 70px);
   max-width: 220px;
+}
+#tb-wrap.edge-right #pen-panel {
+  left: auto;
+  right: 14px;
 }

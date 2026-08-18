@@ -455,10 +455,12 @@
     for (const [t, id] of Object.entries(toolBtns)) {
       document.getElementById(id).classList.toggle("active", t === tool);
     }
-    if (!state.tbLocked && !$tbWrap.classList.contains("collapsed")) setToolbarCollapsed(true);
   }
   for (const [tool, id] of Object.entries(toolBtns)) {
-    document.getElementById(id).addEventListener("click", () => setTool(tool));
+    document.getElementById(id).addEventListener("click", () => {
+      setTool(tool);
+      if (!state.tbLocked && !$tbWrap.classList.contains("collapsed")) setToolbarCollapsed(true);
+    });
   }
 
   // ---------- 筆選項 ----------
