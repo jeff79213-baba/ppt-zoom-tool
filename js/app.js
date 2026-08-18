@@ -272,7 +272,6 @@
     if (POINTERS.size > 0) return; // MVP 單指/單滑鼠
     // 點擊頁面（功能欄外側）→ 收合工具列（手機／全螢幕才啟用，桌面留著）
     if ((isMobileDevice() || isFullscreen()) && !$tbWrap.classList.contains("collapsed")) {
-      landscapeAuto = false;
       setToolbarCollapsed(true);
     }
     $viewer.setPointerCapture(e.pointerId);
@@ -783,8 +782,8 @@
   function setToolbarCollapsed(collapsed) {
     $tbWrap.classList.toggle("collapsed", collapsed);
   }
-  bindTap($tbCollapse, () => { landscapeAuto = false; setToolbarCollapsed(true); });
-  bindTap($tbExpand, () => { landscapeAuto = false; setToolbarCollapsed(false); });
+  bindTap($tbCollapse, () => { setToolbarCollapsed(true); });
+  bindTap($tbExpand, () => { setToolbarCollapsed(false); });
   bindTap($tbExpandPrev, () => { if (cur()) gotoPage(cur().page - 1); });
   bindTap($tbExpandNext, () => { if (cur()) gotoPage(cur().page + 1); });
 
@@ -825,16 +824,18 @@
     }
   });
 
-  // ---------- 橫向自動收合 ----------
-  let landscapeAuto = true;  // true = 自動控制中，false = 使用者手動操作過
+  // ---------- 轉向處理：方向翻轉時強制展開工具列，讓使用者自行收合 ----------
+  let lastOrientation = null;
 
   function checkOrientation() {
     if (!isMobileDevice()) return;
-    if (!landscapeAuto) return;          // 使用者手動操作過
     const landscape = window.innerWidth > window.innerHeight;
-    // 橫向時工具列保持展開，由使用者手動收合
-    void landscape;
-    setToolbarCollapsed(false);
+    const now = landscape ? "landscape" : "portrait";
+    if (lastOrientation === null) { lastOrientation = now; return; }
+    if (lastOrientation !== now) {
+      lastOrientation = now;
+      setToolbarCollapsed(false);
+    }
   }
 
   let orientationTimer = null;
@@ -851,6 +852,8 @@
   });
 
   (function initToolbarPos() {
+    // 行動裝置（觸控）：工具列固定最下方，不浮動、不記憶位置
+    if (isMobileDevice()) return;
     let pos = null;
     try { pos = JSON.parse(localStorage.getItem("pptzoom_toolbarPos")); } catch (_) {}
     if (pos && typeof pos.x === "number" && typeof pos.y === "number") {
