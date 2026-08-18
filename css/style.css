@@ -392,13 +392,12 @@ html, body {
   .tb-opacity input { width: 40px; }
 }
 
-/* 桌面橫向：工具列改為兩排，加深背景 */
+/* 桌面橫向：工具列改為兩排 */
 @media (hover: hover) and (orientation: landscape) {
   #toolbar {
     flex-wrap: wrap;
     max-width: 560px;
     justify-content: center;
-    background: rgba(20,23,28,.97);
   }
 }
 
