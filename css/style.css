@@ -250,6 +250,14 @@ html, body {
   border-radius: 12px 12px 0 0;
   box-shadow: 0 4px 16px rgba(0,0,0,.45);
 }
+/* 手機直式：工具列較高，面板需移到工具列上方 */
+@media (hover: none), (max-width: 860px) {
+  #pen-panel { bottom: 150px; }
+}
+/* 手機橫向：工具列單層較矮，面板貼近工具列上方 */
+@media (hover: none) and (orientation: landscape) {
+  #pen-panel { bottom: 66px; }
+}
 #pen-panel[hidden] { display: none; }
 .pen-main {
   display: flex;
@@ -351,22 +359,37 @@ html, body {
 #pg-label { min-width: 44px; text-align: center; font-size: 13px; }
 
 /* ========== 手機 / 觸控版 ========== */
-/* 觸控裝置或窄螢幕：工具列常駐顯示，不依賴 hover */
+/* 觸控裝置或窄螢幕：工具列常駐顯示，不依賴 hover；滿寬貼底 */
 @media (hover: none), (max-width: 860px) {
   #tb-wrap { height: auto; }
   #tb-pin { display: none; }
+  #tb-drag { display: none; }
 
   #toolbar {
     position: fixed;
-    left: 50%;
-    bottom: 8px;
-    transform: translateX(-50%);
-    max-width: calc(100vw - 12px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    width: auto;
+    max-width: 100%;
     flex-wrap: wrap;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 14px 14px 0 0;
+    padding-bottom: 6px;
   }
   .tb-sep { display: none; }
+}
+
+/* 手機橫向：工具列單層一排，全部按鈕放同一行 */
+@media (hover: none) and (orientation: landscape) {
+  #toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: center;
+  }
+  .file-btn { max-width: 100px; }
+  .tb-opacity input { width: 40px; }
 }
 
 /* 手機直式窄螢幕：固定兩排 + 浮動面板 */
