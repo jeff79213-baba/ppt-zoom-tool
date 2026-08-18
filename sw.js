@@ -1,4 +1,4 @@
-const INSTALL_CACHE = "pptzoom-v1";
+const INSTALL_CACHE = "pptzoom-v2";
 const PRECACHE = ["./", "./index.html", "./css/style.css", "./js/app.js", "./manifest.json"];
 
 self.addEventListener("install", (e) => {

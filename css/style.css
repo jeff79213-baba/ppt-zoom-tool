@@ -404,6 +404,8 @@ html, body {
   background: transparent;
   color: #cdd4dd;
   cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 .tb-mini-btn:hover { color: #fff; background: rgba(255,255,255,.10); }
 
@@ -412,6 +414,21 @@ html, body {
 #tb-wrap.collapsed.edge-left #pen-panel,
 #tb-wrap.collapsed.edge-right #pen-panel { display: none; }
 #tb-wrap.collapsed #tb-mini { display: flex; }
+
+/* 橫向收合時：按鈕加大、背景更透明 */
+@media (orientation: landscape) and (hover: none) {
+  #tb-wrap.collapsed #tb-mini {
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  #tb-wrap.collapsed #tb-mini .tb-mini-btn {
+    width: 44px;
+    height: 44px;
+    color: rgba(255,255,255,.75);
+  }
+}
 
 /* ---------- 全螢幕收合模式（透明控制列） ---------- */
 #tb-wrap.fs #tb-mini {
