@@ -57,6 +57,7 @@
   function resizeCanvases() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = $viewer.clientWidth, h = $viewer.clientHeight;
+    if (!w || !h) return;
     for (const c of [$pdfLayer, $markLayer]) {
       c.width = Math.round(w * dpr);
       c.height = Math.round(h * dpr);
@@ -64,11 +65,25 @@
     if (cur()) fitPage();
     renderAll();
   }
-  window.addEventListener("resize", resizeCanvases);
+  // iOS 旋轉／位址列伸縮會分階段變更尺寸，需分段校正，避免畫布殘留過渡期
+  // 尺寸導致畫面偏移（並連帶造成手繪筆觸與觸控點錯位）
+  let viewportTimer = null;
+  function onViewportChange() {
+    resizeCanvases();
+    clearTimeout(viewportTimer);
+    viewportTimer = setTimeout(resizeCanvases, 300);
+    setTimeout(resizeCanvases, 700);
+  }
+  window.addEventListener("resize", onViewportChange);
+  window.addEventListener("orientationchange", () => setTimeout(onViewportChange, 200));
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", onViewportChange);
+  }
 
   // ---------- transform 工具 ----------
   function fitPage() {
     const w = $viewer.clientWidth, h = $viewer.clientHeight;
+    if (!w || !h || !state.pageW || !state.pageH) return;
     const s = Math.min(w / state.pageW, h / state.pageH);
     state.scale = s;
     state.ox = (w - state.pageW * s) / 2;
@@ -78,7 +93,7 @@
   }
 
   function resetView() {
-    fitPage();
+    resizeCanvases();   // 先校正畫布尺寸（旋轉後尺寸可能殘留），再置中
   }
 
   // ---------- PDF 渲染 ----------
@@ -229,6 +244,11 @@
     const doc = cur();
     if (!doc) return;
     if (POINTERS.size > 0) return; // MVP 單指/單滑鼠
+    // 點擊頁面（功能欄外側）→ 收合工具列（手機／全螢幕才啟用，桌面留著）
+    if ((isMobileDevice() || isFullscreen()) && !$tbWrap.classList.contains("collapsed")) {
+      landscapeAuto = false;
+      setToolbarCollapsed(true);
+    }
     $viewer.setPointerCapture(e.pointerId);
     POINTERS.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
